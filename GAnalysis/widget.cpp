@@ -7,7 +7,7 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ;;
+    ;
 }
 
 Widget::~Widget()
