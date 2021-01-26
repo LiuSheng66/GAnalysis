@@ -1,2 +1,24 @@
-<!DOCTYPE RCC>
-<RCC version="1.0"/>
+<RCC>
+    <qresource prefix="/">
+        <file>image/icon/deletefile.png</file>
+        <file>image/icon/details.png</file>
+        <file>image/icon/download.png</file>
+        <file>image/icon/editfile.png</file>
+        <file>image/icon/new.png</file>
+        <file>image/icon/newfile.png</file>
+        <file>image/icon/others.png</file>
+        <file>image/icon/picture.png</file>
+        <file>image/icon/preview.png</file>
+        <file>image/icon/Reset.png</file>
+        <file>image/icon/savefile.png</file>
+        <file>image/icon/search.png</file>
+        <file>image/icon/upload.png</file>
+        <file>image/icon/openfile.png</file>
+        <file>image/icon/clearfile.png</file>
+        <file>image/icon/print.png</file>
+        <file>image/icon/saveasfile.png</file>
+        <file>image/icon/beginanalysis.png</file>
+        <file>image/icon/setting.png</file>
+        <file>image/icon/close.png</file>
+    </qresource>
+</RCC>
