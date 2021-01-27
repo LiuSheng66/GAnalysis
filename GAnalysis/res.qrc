@@ -20,5 +20,7 @@
         <file>image/icon/beginanalysis.png</file>
         <file>image/icon/setting.png</file>
         <file>image/icon/close.png</file>
+        <file>image/icon/Gtitle.png</file>
+        <file>image/icon/pauseAnalysis.png</file>
     </qresource>
 </RCC>

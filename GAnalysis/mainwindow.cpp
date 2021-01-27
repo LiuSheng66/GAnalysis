@@ -4,7 +4,10 @@
 #include<QMessageBox>
 #include<QToolBar>
 #include<QStatusBar>
+#include<QDockWidget>
+#include<QSizePolicy>
 #include<QDebug>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -33,17 +36,75 @@ void MainWindow::setLayout()
 {
     //程序标题
     setWindowTitle(tr("G代码解析"));
+    //设置图标
+    setWindowIcon(QIcon(":/image/icon/Gtitle.png"));
     //初始化窗口大小
-    resize(1442,900);
+    resize(1400,900);
     //使用样式表设置菜单栏颜色为两灰色(#D5D5D5十六进制)
     setStyleSheet("QMenuBar:item{background-color:#D5D5D5;}QMenuBar{background-color:#D5D5D5;}"
                   "QToolBar:item{background-color:#D5D5D5;}QToolBar{background-color:#D5D5D5;}"
                   "QStatusBar:item{background-color:#D5D5D5;}QStatusBar{background-color:#D5D5D5;}");
 
     //使用调色板设置背景颜色为深灰色(RGB(74,75,75)十进制)
-    QPalette palette0=this->palette();
-    palette0.setColor(QPalette::Background,QColor(74,75,75));
-    this->setPalette(palette0);
+    QPalette MainBlackgroundpal=this->palette();
+    MainBlackgroundpal.setColor(QPalette::Background,QColor(255,255,255));
+    this->setPalette(MainBlackgroundpal);
+
+    //删除中央窗体,QMainWindow中自带中央窗体，如果不去除的话，可能会造成窗口间有空块的情况
+    QWidget* p = takeCentralWidget();
+    if (p){
+        delete p;
+    }
+
+
+    //定义QDockWidgetd的背景色
+    QPalette dockWidgetPal=this->palette();
+    dockWidgetPal.setColor(QPalette::Background, Qt::green);
+//    允许嵌套dock
+    setDockNestingEnabled(true);
+    workSpaceDockWidget = new QDockWidget(tr("工作区"), this);
+    addDockWidget(Qt::LeftDockWidgetArea,workSpaceDockWidget);
+    workSpaceDockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures); // 设置可移动
+    workSpaceDockWidget ->setMinimumWidth(200);
+//    workSpaceDockWidget ->setMinimumSize(200, this->height());
+    workSpaceDockWidget->setAutoFillBackground(true);//加这句，下面设置颜色时，可以设置标题和控件主体的颜色，否则只能设置标题栏的颜色
+    workSpaceDockWidget->setPalette(dockWidgetPal);
+
+    gDisplayDockWidget = new QDockWidget(tr("G代码显示"), this);
+    tabifyDockWidget(workSpaceDockWidget, gDisplayDockWidget);
+    gDisplayDockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures); // 设置可移动
+//    gDisplayDockWidget ->setMinimumSize(200, this->height());
+    gDisplayDockWidget ->setMinimumWidth(200);
+
+    PropertyDockWidget = new QDockWidget(tr("属性"), this);
+    addDockWidget(Qt::RightDockWidgetArea,PropertyDockWidget);
+    PropertyDockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures); // 设置可移动
+//    PropertyDockWidget ->setMinimumSize(150, this->height());
+    PropertyDockWidget ->setMinimumWidth(150);
+
+    outPutdockWidget = new QDockWidget(tr("输出"), this);
+    addDockWidget(Qt::BottomDockWidgetArea,outPutdockWidget);
+    outPutdockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures); // 设置可移动
+    outPutdockWidget ->setMinimumSize(this->width()-workSpaceDockWidget->width()-PropertyDockWidget->width(),150 );
+
+//    splitDockWidget(dockWidget_1,dockWidget_2,Qt::Horizontal);
+
+    area=new PaintArea(this->width(),this->height());//创建画布
+    scrollArea=new QScrollArea(this);
+    scrollArea->setBackgroundRole(QPalette::Dark);//scrollArea对象的背景色设置为Dark
+    scrollArea->setWidget(area) ;//将画布添加到scrollArea中
+    scrollArea->setGeometry(0,0,this->width(),this->height());//scrollArea的布局(左上角定位x,左上角定位y, 外框宽度，外框高度)
+    scrollArea->widget()->setGeometry(0,0,this->width(),this->height());//用于填充绘画对象的空间大小
+    scrollArea->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored);
+//    scrollArea->widget()->setMinimumSize(area->image.width(),area->image.height());//根据画布的大小初始化scrollArea的内部空间
+//    Flickable {
+//        contentHeight: 2000
+//        scrollArea.vertical: ScrollBar {
+//            policy: ScrollBar.AlwaysOn
+//        }
+//    }
+
+    setCentralWidget(scrollArea);
 
 }
 
@@ -89,6 +150,11 @@ void MainWindow::CreateActions()//实例化下拉菜单功能
     beginAnalysAct->setStatusTip(QStringLiteral("执行"));
     beginAnalysAct->setShortcuts(QKeySequence::Open);//打开快捷键
     connect(beginAnalysAct, &QAction::triggered, this, &MainWindow::BeginAnalysis);
+
+    const QIcon PauseAnalysActIcon =QIcon(":/image/icon/pauseAnalysis.png");
+    pauseAnalysAct = new QAction(PauseAnalysActIcon, QStringLiteral("暂停(&U)"), this);
+    pauseAnalysAct->setStatusTip(QStringLiteral("暂停"));
+    connect(pauseAnalysAct, &QAction::triggered, this, &MainWindow::BeginAnalysis);
 
     //**************************************************************************************************//
     //*************************************    设置相关    *********************************************//
@@ -168,6 +234,8 @@ void MainWindow::CreateToolbar()
     analysisTool->setIconSize(QSize(20,20));//设置图标的大小
 
     analysisTool->addAction(beginAnalysAct);
+    analysisTool->addAction(pauseAnalysAct);
+
 
     //---------------------------- 设置工具栏 -----------------------------------//
     settingTool=addToolBar("设置");
@@ -190,6 +258,35 @@ void MainWindow::CreateStatusbar()
 
 }
 
+
+// 移除并隐藏所有的dock
+void MainWindow::removeAllDock()
+{
+    for(int i=0;i<1;++i)
+    {
+        removeDockWidget(m_docks[i]);
+    }
+}
+
+// 显示指定序号的dock
+// index 指定序号，如果不指定，则会显示所有
+void MainWindow::showDock(const QList<int>& index )
+{
+    if (index.isEmpty())
+    {
+        for(int i=0;i<1;++i)
+        {
+            m_docks[i]->show();
+        }
+    }
+    else
+    {
+        foreach (int i, index) {
+            m_docks[i]->show();
+        }
+    }
+}
+
 void MainWindow::TestFun()
 {
     QMessageBox::information(this,tr("测试函数"),tr("按钮测试成功!"));
@@ -197,11 +294,7 @@ void MainWindow::TestFun()
 
 void MainWindow::OpenFile()
 {
-    QSettings *settings = new QSettings("./file.ini",QSettings::IniFormat);//调用QSettings操作ini文件
-    QString lang = settings->value("jieming/jianming").toString();//按照对应的节名和键名，读出ini文件中保存的内容，默认为空
-    ui->textEdit->setText(lang);//将读出的内容显示到窗口中
-    delete settings;
-    QMessageBox::information(this,QStringLiteral("提示"), QStringLiteral("读取成功!"));
+
 }
 
 
@@ -235,26 +328,17 @@ void MainWindow::SaveAsFile()
 
 void MainWindow::CloseFile()
 {
-    QSettings *settings = new QSettings("./file.ini",QSettings::IniFormat);
-    settings->setValue("jieming/jianming",ui->textEdit->toPlainText());//将当前选择的语言写入ini文件中
-    delete settings;
-    QMessageBox::information(this,QStringLiteral("提示"), QStringLiteral("更新成功!"));
+
 }
 
 void MainWindow::BeginAnalysis()
 {
-    QSettings *settings = new QSettings("./file.ini",QSettings::IniFormat);
-    settings->setValue("jieming/jianming",ui->textEdit->toPlainText());//将当前选择的语言写入ini文件中
-    delete settings;
-    QMessageBox::information(this,QStringLiteral("提示"), QStringLiteral("更新成功!"));
+
 }
 
 void MainWindow::Setting()
 {
-    QSettings *settings = new QSettings("./file.ini",QSettings::IniFormat);
-    settings->setValue("jieming/jianming",ui->textEdit->toPlainText());//将当前选择的语言写入ini文件中
-    delete settings;
-    QMessageBox::information(this,QStringLiteral("提示"), QStringLiteral("更新成功!"));
+
 }
 void MainWindow::CloseSystem()
 {
