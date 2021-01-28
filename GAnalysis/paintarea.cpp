@@ -21,7 +21,7 @@ PaintArea::PaintArea(int imageWidth,int imageHeight)
     image=QImage(imageWidth,imageHeight,QImage::Format_RGB32);//画布初始化大小设为1000*1000，使用32位颜色
 
     QRgb backGroundColor;
-    backGroundColor=qRgb(255,255,255);//画布初始化位白色
+    backGroundColor=qRgb(255,0,255);//画布初始化位白色
     image.fill(backGroundColor);
 }
 PaintArea::~PaintArea()
