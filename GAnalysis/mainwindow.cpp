@@ -7,15 +7,20 @@
 #include<QDockWidget>
 #include<QSizePolicy>
 #include<QDebug>
-//#include<QFile>
 #include<QFileDialog>
 #include<QTextCodec>
 #include<QColorDialog>
 #include<QDateTime>
+#include<syntax/myhighlighter.h>
+#include<syntax/codeeditor.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    ,textEditGCode(new QTextEdit)
+    ,textDisplayGCode(new QTextEdit)
+    ,gEditWidget(new CodeEditor)
+
 {
     ui->setupUi(this);
 
@@ -27,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     CreateStatusbar();//创建状态栏
 
     statusBar()->showMessage(tr("就绪"));
+    centralWidget()->setMouseTracking(true);//开启鼠标跟踪事件
 }
 
 MainWindow::~MainWindow()
@@ -37,6 +43,13 @@ void MainWindow::paintEvent(QPaintEvent *event)
 {
 
 }
+
+void MainWindow:: mouseMovePoint()
+{ //鼠标移动响应
+    QPointF pt=QPointF(area->x(),area->y());
+    xyLabel->setText(QString::asprintf("X=%.1f,Y=%.2f",pt.x(),pt.y())); //状态栏显示
+}
+
 void MainWindow::setLayout()
 {
     //程序标题
@@ -44,7 +57,7 @@ void MainWindow::setLayout()
     //设置图标
     setWindowIcon(QIcon(":/image/icon/Gtitle.png"));
     //初始化窗口大小
-    resize(1400,900);
+    resize(1200,900);
     //使用样式表设置菜单栏颜色为两灰色(#D5D5D5十六进制)
     setStyleSheet("QMenuBar:item{background-color:#D5D5D5;}QMenuBar{background-color:#D5D5D5;}"
                   "QToolBar:item{background-color:#D5D5D5;}QToolBar{background-color:#D5D5D5;}"
@@ -61,37 +74,34 @@ void MainWindow::setLayout()
         delete p;
     }
 
-//    //设置文字颜色
-    QPalette *textEditGCodePal=new QPalette;
-    textEditGCodePal->setColor(QPalette::Text,QColor(0,0,0));// 黑色，文字显示的前景色
-    textEditGCodePal->setColor(QPalette::Base,QColor(190,190,190));//白色 文字显示的背景色, 默认是白色的
-    textEditGCodePal->setColor(QPalette::HighlightedText,QColor(255,255,255));//白色 被选中后文字的前景色
-    textEditGCodePal->setColor(QPalette::Highlight,QColor(0,0,0)); //黑色 被选中后文字的背景色
+//    //设置工作区背景色
+    QPalette *workSpacePal=new QPalette;
+    workSpacePal->setColor(QPalette::Window,QColor(190,190,190));
 
 
-    //定义QDockWidgetd的背景色
-//    QPalette dockWidgetPal=this->palette();
-//    dockWidgetPal.setColor(QPalette::Background,QColor(255,255,255));
 //    允许嵌套dock
     setDockNestingEnabled(true);
     workSpaceDockWidget = new QDockWidget(tr("工作区"), this);
     addDockWidget(Qt::LeftDockWidgetArea,workSpaceDockWidget);
     workSpaceDockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures); // 设置都可以
     workSpaceDockWidget ->setMinimumWidth(200);
-//    workSpaceDockWidget ->setMinimumSize(200, this->height());
-//    workSpaceDockWidget->setAutoFillBackground(true);//加这句，下面设置颜色时，可以设置标题和控件主体的颜色，否则只能设置标题栏的颜色
-//    workSpaceDockWidget->setPalette(dockWidgetPal);
-    textEditGCode=new QTextEdit(workSpaceDockWidget);
-//    QPalette textEditGCodePal=this->palette();
-//    textEditGCodePal.setColor(QPalette::Base,QColor(100,190,190));//白色 文字显示的背景色, 默认是白色的
-//    textEditGCode->setPalette(textEditGCodePal);
-//    textEditGCode->setPalette(*textEditGCodePal);
-    textEditGCode->setReadOnly(true);
-    QColor *color=new QColor(250,250,0);
-    QColor *color1=new QColor(250,22,0);
-    setTextColor(textEditGCode,color);
-    setTextColor(textEditGCode,color1);
-    workSpaceDockWidget->setWidget(textEditGCode);
+    workSpaceDockWidget->setAutoFillBackground(true);
+    workSpaceDockWidget->setPalette(*workSpacePal);
+
+    //*****************************************************
+    gEditWidget = new CodeEditor();
+    gEditWidget->setReadOnly(true);
+    QFont *gEditFont=new QFont( "Times New Roman", 13);
+    gEditWidget->setFont(*gEditFont);
+    MyHighLighter *highlighter = new MyHighLighter(gEditWidget->document());
+    workSpaceDockWidget->setWidget(gEditWidget);
+    //*****************************************************
+
+
+//    workSpaceDockWidget->setWidget(textEditGCode);
+//    textEditGCode->setReadOnly(true);
+
+//    textEditGCode->setStyleSheet("QTextEdit { background: rgb(190,190,190) }");
 
     gDisplayDockWidget = new QDockWidget(tr("G代码显示"), this);
     tabifyDockWidget(workSpaceDockWidget, gDisplayDockWidget);
@@ -100,8 +110,8 @@ void MainWindow::setLayout()
     gDisplayDockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures); // 设置可移动
 //    gDisplayDockWidget ->setMinimumSize(200, this->height());
     gDisplayDockWidget ->setMinimumWidth(200);
-    textDisplayGCode=new QTextEdit(workSpaceDockWidget);
     gDisplayDockWidget->setWidget(textDisplayGCode);
+    textDisplayGCode->setReadOnly(true);
 
     PropertyDockWidget = new QDockWidget(tr("属性"), this);
     addDockWidget(Qt::RightDockWidgetArea,PropertyDockWidget);
@@ -184,10 +194,16 @@ void MainWindow::CreateActions()//实例化下拉菜单功能
     //**************************************************************************************************//
     //*************************************    数据执行绘图相关    *********************************************//
     const QIcon BeginAnalysActIcon =QIcon(":/image/icon/beginanalysis.png");
-    AnalysAct = new QAction(BeginAnalysActIcon, QStringLiteral("执行(&U)"), this);
-    AnalysAct->setStatusTip(QStringLiteral("执行"));
-    AnalysAct->setShortcuts(QKeySequence::Open);//打开快捷键
-    connect(AnalysAct, &QAction::triggered, this, &MainWindow::DealWithAnalysis);
+    analysisAndDawAct = new QAction(BeginAnalysActIcon, QStringLiteral("执行(&U)"), this);
+    analysisAndDawAct->setStatusTip(QStringLiteral("执行"));
+    analysisAndDawAct->setShortcuts(QKeySequence::Open);//打开快捷键
+    connect(analysisAndDawAct, &QAction::triggered, this, &MainWindow::TestFun);
+
+    const QIcon AnalysActIcon =QIcon(":/image/icon/analysis.png");
+    analysisAct = new QAction(AnalysActIcon, QStringLiteral("解析(&U)"), this);
+    analysisAct->setStatusTip(QStringLiteral("解析"));
+    analysisAct->setShortcuts(QKeySequence::Open);//打开快捷键
+    connect(analysisAct, &QAction::triggered, this, &MainWindow::TestFun);
 
 
     //**************************************************************************************************//
@@ -211,7 +227,12 @@ void MainWindow::CreateActions()//实例化下拉菜单功能
     connect(aboutAct, &QAction::triggered, this, [=](){
     TestFun();
     });
+    //**************************************************************************************************//
+    //*************************************    状态栏     *********************************************//
+//    void(PaintArea:: *qw)(QPoint)=&PaintArea::mouseMoveSig;
 
+//    connect(area,qw,this,&MainWindow::mouseMovePoint);  //鼠标移动事件
+//SIGNAL(mouseMovePoint(QPoint)) SLOT(mouseMovePoint)
 }
 
 //实例化菜单栏
@@ -220,7 +241,7 @@ void MainWindow::CreatMenuBar()
     fileMenu = menuBar()->addMenu(QStringLiteral("文件").trimmed()+tr("(&F)"));//实例化一个文件菜单栏
     editMenu = menuBar()->addMenu(QStringLiteral("编辑").trimmed()+tr("(&E)"));//实例化一个编辑菜单栏
     viewMenu = menuBar()->addMenu(QStringLiteral("视图").trimmed()+tr("(&V)"));//实例化一个视图菜单栏
-    analysisMenu = menuBar()->addMenu(QStringLiteral("执行").trimmed()+tr("(&D)"));//实例化一个编辑菜单栏
+    analysisMenu = menuBar()->addMenu(QStringLiteral("RUN").trimmed()+tr("(&D)"));//实例化一个编辑菜单栏
     HelpMenu = menuBar()->addMenu(QStringLiteral("帮助").trimmed()+tr("(&H)"));//实例化一个编辑菜单栏
 
     fileMenu->addAction(openFileAct);//添加动作
@@ -234,7 +255,8 @@ void MainWindow::CreatMenuBar()
 
     editMenu->addAction(settingAct);
 
-    analysisMenu->addAction(AnalysAct);
+    analysisMenu->addAction(analysisAndDawAct);
+    analysisMenu->addAction(analysisAct);
 
     HelpMenu->addAction(aboutAct);
 }
@@ -249,7 +271,7 @@ void MainWindow::CreateToolbar()
     fileTool->setMovable(true);//设置能否移动的总开关
     //The default is Qt::ToolButtonIconOnly.
 //    fileTool->setToolButtonStyle(Qt::ToolButtonFollowStyle);//设置工具栏中图标显示在文字上方
-    fileTool->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);//设置工具栏中图标显示在文字上方
+    fileTool->setToolButtonStyle(Qt::ToolButtonIconOnly);//设置工具栏中图标显示在文字上方
     fileTool->setIconSize(QSize(20,20));//设置图标的大小
 
     fileTool->addAction(newFileAct);
@@ -258,25 +280,25 @@ void MainWindow::CreateToolbar()
     fileTool->addAction(saveAsFileAct);
     fileTool->addAction( closeAct);
 //    fileTool->addSeparator();
-
+//
     //---------------------------- 绘图工具栏 -----------------------------------//
-    analysisTool=addToolBar("解析");
-    analysisTool->setAllowedAreas(Qt::TopToolBarArea);//设置停靠区域
-    analysisTool->setFloatable(false);//设置是否能够浮动
-    analysisTool->setMovable(true);//设置能否移动的总开关
+    ProcessTool=addToolBar("解析");
+    ProcessTool->setAllowedAreas(Qt::TopToolBarArea);//设置停靠区域
+    ProcessTool->setFloatable(false);//设置是否能够浮动
+    ProcessTool->setMovable(true);//设置能否移动的总开关
 //    settingTool->setToolButtonStyle(Qt::ToolButtonIconOnly);//设置工具栏中图标显示在文字上方
-    analysisTool->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);//设置工具栏中图标显示在文字上方
-    analysisTool->setIconSize(QSize(20,20));//设置图标的大小
+    ProcessTool->setToolButtonStyle(Qt::ToolButtonIconOnly);//设置工具栏中图标显示在文字上方
+    ProcessTool->setIconSize(QSize(20,20));//设置图标的大小
 
-    analysisTool->addAction(AnalysAct);
-
+    ProcessTool->addAction(analysisAndDawAct);
+    ProcessTool->addAction(analysisAct);
     //---------------------------- 设置工具栏 -----------------------------------//
     settingTool=addToolBar("设置");
     settingTool->setAllowedAreas(Qt::TopToolBarArea);//设置停靠区域
     settingTool->setFloatable(false);//设置是否能够浮动
     settingTool->setMovable(true);//设置能否移动的总开关
 //    settingTool->setToolButtonStyle(Qt::ToolButtonIconOnly);//设置工具栏中图标显示在文字上方
-    settingTool->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);//设置工具栏中图标显示在文字上方
+    settingTool->setToolButtonStyle(Qt::ToolButtonIconOnly);//设置工具栏中图标显示在文字上方
     settingTool->setIconSize(QSize(20,20));//设置图标的大小
 
     settingTool->addAction(settingAct);
@@ -286,6 +308,8 @@ void MainWindow::CreateToolbar()
 //实例化状态栏
 void MainWindow::CreateStatusbar()
 {
+    QFont font("Microsoft YaHei", 10);//设置显示文字的字体和文字大小
+
     statusdisplay=statusBar();//实例化一个状态栏
     setStatusBar(statusdisplay);//设置到窗口中
 
@@ -293,10 +317,15 @@ void MainWindow::CreateStatusbar()
     statusBar()->setMinimumHeight(25);
     statusBar()->setStyleSheet(QString("QStatusBar::item{border: 1px}")); // 不显示边框
 
+    xyLabel = new QLabel("X=  ,  Y=  "); //状态栏显示鼠标点的坐标
+    xyLabel->setMinimumWidth(20);
+    xyLabel->setFont(font);
+    statusBar()->addPermanentWidget(xyLabel);
+
     outputStatusLabel = new QLabel();
     outputStatusLabel->setFrameStyle(QFrame::WinPanel | QFrame::Raised);
 
-    QFont font("Microsoft YaHei", 10);//设置显示文字的字体和文字大小
+
 
     // 添加提示信息标签
 //    outputStatusLabel->setMinimumWidth(this->width() / 2);
@@ -311,11 +340,11 @@ void MainWindow::CreateStatusbar()
     pushBtn->setFont(font);
     pushBtn->setFlat(true);//就是这句实现按钮透明的效果。
     statusBar()->addPermanentWidget(pushBtn);
+
     //点击按钮显示或
     connect(pushBtn, &QPushButton::clicked, this,[=](){
         ConvertShowOrHide(outPutdockWidget);
     });
-
 
 }
 
@@ -365,8 +394,20 @@ void MainWindow::OpenFile()
     QFile file(path);
     file.open(QIODevice::ReadOnly);
     QByteArray FileContent=file.readAll();
-//    ui->textEditGCode->setText(FileContent);
-    textEditGCode->setText(codec->toUnicode(FileContent));
+//    textEditGCode->clear();
+//    textEditGCode->show();
+//    textEditGCode->setText(codec->toUnicode(FileContent));
+//    MyHighLighter * h = new MyHighLighter(textEditGCode->document());//传一个QTextDocument,添加语言高亮
+
+    gEditWidget->clear();
+    gEditWidget->setReadOnly(false);
+    QFont *gEditFont=new QFont( "Times New Roman", 13);//设置字体及大小
+    gEditWidget->setFont(*gEditFont);
+    gEditWidget->setPlainText(codec->toUnicode(FileContent));
+    MyHighLighter *highlighter = new MyHighLighter(gEditWidget->document());
+
+
+
     file.close();
 
     //设置文字颜色
@@ -380,16 +421,48 @@ void MainWindow::OpenFile()
 }
 
 
-//写入文件内容
+//创建新的编辑文件
 void MainWindow::NewFile()
 {
+    /*
     textEditGCode->clear();
+    textDisplayGCode->clear();
     textEditGCode->setReadOnly(false);
-    textEditGCode->setAutoFillBackground(true);
-    QColor *color=new QColor(0,250,0);
-    setTextColor(textEditGCode,color);
-//    textEditGCode->setStyleSheet("QPushButton{background-color: white;  color: rgb(100, 100, 100) ;}");
+    textDisplayGCode->setReadOnly(true);
+    QPalette *textEditGCodePal=new QPalette;
+    textEditGCodePal->setColor(QPalette::Text,QColor(0,0,0));// 黑色，文字显示的前景色
+    textEditGCodePal->setColor(QPalette::Base,QColor(255,255,255));//白色 文字显示的背景色, 默认是白色的
+    textEditGCodePal->setColor(QPalette::HighlightedText,QColor(255,255,255));//白色 被选中后文字的前景色
+    textEditGCodePal->setColor(QPalette::Highlight,QColor(0,0,0)); //黑色 被选中后文字的背景色
+    textEditGCode->setPalette(*textEditGCodePal);
+    workSpaceDockWidget->setWidget(textEditGCode);*/
 
+    gEditWidget->clear();
+    gEditWidget->setReadOnly(false);
+    QFont *gEditFont=new QFont( "Times New Roman", 13);//设置字体及大小
+    gEditWidget->setFont(*gEditFont);
+    MyHighLighter *highlighter = new MyHighLighter(gEditWidget->document());
+    workSpaceDockWidget->setWidget(gEditWidget);
+
+//    workSpaceDockWidget ->setMinimumSize(200, this->height());
+//    workSpaceDockWidget->setAutoFillBackground(true);//加这句，下面设置颜色时，可以设置标题和控件主体的颜色，否则只能设置标题栏的颜色
+//    workSpaceDockWidget->setPalette(dockWidgetPal);
+//    textEditGCode=new QTextEdit(workSpaceDockWidget);
+//    QPalette textEditGCodePal=this->palette();
+//    textEditGCodePal.setColor(QPalette::Base,QColor(100,190,190));//白色 文字显示的背景色, 默认是白色的
+//    textEditGCode->setPalette(textEditGCodePal);
+//    textEditGCode->setPalette(*textEditGCodePal);
+//    textEditGCode->setReadOnly(true);
+//    QColor *color=new QColor(250,250,0);
+//    setTextColor(textEditGCode,color);
+
+//    workSpaceDockWidget->setAutoFillBackground(true);
+    QPalette *workSpacePal=new QPalette;
+    workSpacePal->setColor(QPalette::Window,QColor(255,255,255));//白色 文字显示的背景色, 默认是白色的
+    workSpaceDockWidget->setPalette(*workSpacePal);
+
+//    MyHighLighter * h1 = new MyHighLighter(textEditGCode->document());//传一个QTextDocument,添加语言高亮
+//    MyHighLighter * h2 = new MyHighLighter(textDisplayGCode->document());//传一个QTextDocument,添加语言高亮
 }
 
 void MainWindow::SaveFile()
@@ -450,32 +523,58 @@ void MainWindow::SaveFile()
 
 void MainWindow::SaveAsFile()
 {
-    QMessageBox::StandardButton btn;
-    btn = QMessageBox::question(this, QStringLiteral("提示"), QStringLiteral("是否退出系统?"), QMessageBox::Yes|QMessageBox::No);
-    if (btn == QMessageBox::Yes) {//如果选择是
-        this->close();//退出系统
-    }
+    //弹出保存的窗口,使用多个格式过滤器时，使用;;来分隔每种格式,同一种文件拥有多种格式"Images (*.png *.xpm *.jpg)"
+    QString path=QFileDialog::getSaveFileName(this,"文件另存为","C://Users//Administrator//Desktop","Text files (*.txt);;CSV(逗号分隔)(*.csv);;Excel工作簿(*.xlsx);;PDF(*.pdf);;XML files (*.xml)");
+    //保存输入的保存文件名
+    QFile file(path);
+    //打开文件,QIODevice::Text,读取时，行尾终止符转换为'\n'。写入时，行尾终止符将转换为本地编码，例如Win32的'\r\n'
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+//    if(MainAlgorithmFunction::AllCoordinate_array.size()>0)
+//    {
+//        for (int i=0;i<(MainAlgorithmFunction::AllCoordinate_array.size()-1);i++)
+//        {
+//            int xDisply=MainAlgorithmFunction::AllCoordinate_array.at(i).x();
+//            int yDisply=MainAlgorithmFunction::AllCoordinate_array.at(i).y();
+//            QString content = QString("%1,%2\n").arg(xDisply).arg(yDisply);
+//            //写入内容,这里需要转码，否则报错。
+//            QByteArray str = content.toUtf8();
+//            file.write(str);
+//        }
+//    }
+    file.write("尝试保存数据");
+    //关闭文件
+    file.close();
 }
 
 void MainWindow::CloseFile()
 {
-    textEditGCode->clear();
     textDisplayGCode->clear();
+    textEditGCode->clear();
+    textDisplayGCode->setReadOnly(true);
     textEditGCode->setReadOnly(true);
-    QPalette *textEditGCodePal=new QPalette;
-    //设置文字颜色
-    textEditGCodePal->setColor(QPalette::Base,QColor(190,190,190));//白色 文字显示的背景色, 默认是灰色的
 
-    textEditGCode->setPalette(*textEditGCodePal);
+//    textEditGCode=new QTextEdit;
+//    delete textEditGCode;
+//    textEditGCode->clear();
+//    textEditGCode->hide();
+//    QPalette *textEditGCodePal=new QPalette;
+    //设置文字颜色
+//    textEditGCodePal->setColor(QPalette::Base,QColor(190,190,190));//白色 文字显示的背景色, 默认是灰色的
+//    textEditGCode->setPalette(*textEditGCodePal);
+
+    QPalette *workSpacePal=new QPalette;
+    workSpacePal->setColor(QPalette::Window,QColor(190,190,190));//灰色 ，表示没有文件能被编辑
+    workSpaceDockWidget->setPalette(*workSpacePal);
+    textEditGCode->setStyleSheet("QTextEdit { background: rgb(190,190,190) }");
+
 
 }
 
 void MainWindow::DealWithAnalysis()
 {
-
         const QIcon PauseAnalysActIcon =QIcon(":/image/icon/pauseAnalysis.png");
-        AnalysAct ->setIcon(PauseAnalysActIcon);
-        AnalysAct->setStatusTip(QStringLiteral("暂停"));
+        analysisAndDawAct ->setIcon(PauseAnalysActIcon);
+        analysisAndDawAct->setStatusTip(QStringLiteral("暂停"));
 //        QMessageBox::information(this,tr("测试函数"),tr("已点击"));
 
 }

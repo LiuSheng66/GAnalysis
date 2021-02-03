@@ -5,7 +5,6 @@
 
 class PaintArea : public QWidget
 {
-
 public:
     PaintArea(int imageWidth,int imageHeight);
     ~PaintArea();
@@ -24,6 +23,7 @@ protected:
 
     void contextMenuEvent(QContextMenuEvent *event) override;
 
+
 private slots:
     void onLoadImage(void);
     void onZoomInImage(void);
@@ -34,7 +34,7 @@ private slots:
 
 public:
     QImage image;  //QImage类对象，用于在其上绘图
-
+    QPoint  point;
 private:
 //    QImage m_Image;
     qreal m_ZoomValue = 1.0;//在ARM中是double，在嵌入版中是float
@@ -48,7 +48,8 @@ private:
 
 protected:
 
-
+signals:
+//    void mouseMoveSig(QPoint point); //鼠标移动信号，在mouseMoveEvent()事件中触发
 
 signals:
 

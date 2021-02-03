@@ -1,4 +1,4 @@
-#include "paintarea.h"
+#include"paintarea.h"
 #include<QPainter>
 #include<QDebug>
 #include<QMouseEvent>
@@ -10,6 +10,7 @@
 #include <QStyleOption>
 #include <QPainter>
 #include <QFileDialog>
+
 
 PaintArea::PaintArea(int imageWidth,int imageHeight)
 {
@@ -23,6 +24,7 @@ PaintArea::PaintArea(int imageWidth,int imageHeight)
     QRgb backGroundColor;
     backGroundColor=qRgb(255,0,255);//画布初始化位白色
     image.fill(backGroundColor);
+    setMouseTracking(true);
 }
 PaintArea::~PaintArea()
 {
@@ -75,9 +77,6 @@ void PaintArea::contextMenuEvent(QContextMenuEvent *event)
 }
 //*****************************************图像缩放等功能********************************//
 
-
-
-
 //鼠标进入事件
 void PaintArea::enterEvent(QEvent *event)
 {
@@ -92,19 +91,27 @@ void PaintArea::leaveEvent(QEvent *)
 
 void PaintArea::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!m_Pressed)
-        return QWidget::mouseMoveEvent(event);
 
-    this->setCursor(Qt::SizeAllCursor);
-    QPoint pos = event->pos();
-    int xPtInterval = pos.x() - m_OldPos.x();
-    int yPtInterval = pos.y() - m_OldPos.y();
 
-    m_XPtInterval += xPtInterval;
-    m_YPtInterval += yPtInterval;
+//    point=event->pos();
+//    emit mouseMovePoint(point);
+//    emit mouseMoveSig(point);
+//    PaintArea::mouseMoveEvent(event);
 
-    m_OldPos = pos;
-    this->update();
+//    if (!m_Pressed)
+//        return QWidget::mouseMoveEvent(event);
+
+//    this->setCursor(Qt::SizeAllCursor);
+//    QPoint pos = event->pos();
+//    int xPtInterval = pos.x() - m_OldPos.x();
+//    int yPtInterval = pos.y() - m_OldPos.y();
+
+//    m_XPtInterval += xPtInterval;
+//    m_YPtInterval += yPtInterval;
+
+//    m_OldPos = pos;
+//    this->update();
+
 }
 void PaintArea::mousePressEvent(QMouseEvent *event)
 {

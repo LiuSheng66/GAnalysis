@@ -22,5 +22,6 @@
         <file>image/icon/close.png</file>
         <file>image/icon/Gtitle.png</file>
         <file>image/icon/pauseAnalysis.png</file>
+        <file>image/icon/analysis.png</file>
     </qresource>
 </RCC>
