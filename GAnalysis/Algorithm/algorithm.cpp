@@ -4,3 +4,9 @@ Algorithm::Algorithm()
 {
 
 }
+
+Algorithm::~Algorithm()
+{
+
+}
+

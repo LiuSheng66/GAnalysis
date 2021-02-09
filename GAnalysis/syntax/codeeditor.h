@@ -30,12 +30,14 @@ protected:
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
-    void updateLineNumberAreaWidth(int newBlockCount);
+    void updateLineNumberAreaWidth(int newBlockCount);//设置编辑框的左、上、右、下的各个文字边距
     void highlightCurrentLine();
     void updateLineNumberArea(const QRect &, int);
 
 private:
     QWidget *lineNumberArea;
+
+//    void wheelEvent(QWheelEvent *event)override;
 };
 
 

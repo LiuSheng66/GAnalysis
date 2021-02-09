@@ -1,5 +1,5 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include"mainwindow.h"
+#include"ui_mainwindow.h"
 #include<QSettings>
 #include<QMessageBox>
 #include<QToolBar>
@@ -13,6 +13,8 @@
 #include<QDateTime>
 #include<syntax/myhighlighter.h>
 #include<syntax/codeeditor.h>
+#include<Command/mycommand.h>
+#include"setting/settingmainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -225,7 +227,10 @@ void MainWindow::CreateActions()//实例化下拉菜单功能
     aboutAct = new QAction( QStringLiteral("关于(&X)"), this);
     aboutAct->setStatusTip(QStringLiteral("关于"));
     connect(aboutAct, &QAction::triggered, this, [=](){
-    TestFun();
+     QMessageBox::about(this, "关于","G代码解析 V1.0\n\n"
+                                   "本软件基于G代码解析开发，使用时请参开一下说明\n"
+                                   "使用时，需要注意一下问题：\n"
+                                   "  1.精度为6位有效数字 ");
     });
     //**************************************************************************************************//
     //*************************************    状态栏     *********************************************//
@@ -242,6 +247,7 @@ void MainWindow::CreatMenuBar()
     editMenu = menuBar()->addMenu(QStringLiteral("编辑").trimmed()+tr("(&E)"));//实例化一个编辑菜单栏
     viewMenu = menuBar()->addMenu(QStringLiteral("视图").trimmed()+tr("(&V)"));//实例化一个视图菜单栏
     analysisMenu = menuBar()->addMenu(QStringLiteral("RUN").trimmed()+tr("(&D)"));//实例化一个编辑菜单栏
+    toolMenu= menuBar()->addMenu(QStringLiteral("工具").trimmed()+tr("(&T)"));//实例化一个编辑菜单栏
     HelpMenu = menuBar()->addMenu(QStringLiteral("帮助").trimmed()+tr("(&H)"));//实例化一个编辑菜单栏
 
     fileMenu->addAction(openFileAct);//添加动作
@@ -257,6 +263,8 @@ void MainWindow::CreatMenuBar()
 
     analysisMenu->addAction(analysisAndDawAct);
     analysisMenu->addAction(analysisAct);
+
+    toolMenu->addAction(settingAct);
 
     HelpMenu->addAction(aboutAct);
 }
@@ -321,6 +329,7 @@ void MainWindow::CreateStatusbar()
     xyLabel->setMinimumWidth(20);
     xyLabel->setFont(font);
     statusBar()->addPermanentWidget(xyLabel);
+
 
     outputStatusLabel = new QLabel();
     outputStatusLabel->setFrameStyle(QFrame::WinPanel | QFrame::Raised);
@@ -418,6 +427,7 @@ void MainWindow::OpenFile()
     TextColorPal.setColor(QPalette::Highlight,QColor(0,0,0)); //黑色 被选中后文字的背景色
     textEditGCode->setPalette(TextColorPal);
 
+//    GCommand *sdf=new GCommand(*gEditWidget);
 }
 
 
@@ -463,6 +473,8 @@ void MainWindow::NewFile()
 
 //    MyHighLighter * h1 = new MyHighLighter(textEditGCode->document());//传一个QTextDocument,添加语言高亮
 //    MyHighLighter * h2 = new MyHighLighter(textDisplayGCode->document());//传一个QTextDocument,添加语言高亮
+
+
 }
 
 void MainWindow::SaveFile()
@@ -581,7 +593,9 @@ void MainWindow::DealWithAnalysis()
 
 void MainWindow::Setting()
 {
-
+    SettingMainWindow *settingWindow = new SettingMainWindow(this);
+    settingWindow->setWindowModality(Qt::ApplicationModal);//设置当前窗口为模态对话框
+    settingWindow->show();
 }
 void MainWindow::CloseSystem()
 {

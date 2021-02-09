@@ -18,29 +18,36 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     Algorithm/algorithm.cpp \
+    Command/gcommand.cpp \
+    Command/mycommand.cpp \
+    Command/mycommandrules.cpp \
     CoordinateSystem/coordinatesystem.cpp \
     Drawing/paintarea.cpp \
     main.cpp \
     mainwindow.cpp \
-    Command/command.cpp \
     GeometricFigure/geometricfigure.cpp \
+    setting/settingmainwindow.cpp \
     syntax/codeeditor.cpp \
     syntax/myhighlighter.cpp
 
 
 HEADERS += \
     Algorithm/algorithm.h \
+    Command/gcommand.h \
+    Command/mycommand.h \
+    Command/mycommandrules.h \
     CoordinateSystem/coordinatesystem.h \
     Drawing/paintarea.h \
     mainwindow.h \
-    Command/command.h \
     GeometricFigure/geometricfigure.h \
+    setting/settingmainwindow.h \
     syntax/codeeditor.h \
     syntax/myhighlighter.h
 
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    setting/settingmainwindow.ui
 
 
 
@@ -51,3 +58,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     res.qrc
+
+
+DISTFILES +=

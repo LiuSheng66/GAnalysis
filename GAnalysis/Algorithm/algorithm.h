@@ -6,6 +6,7 @@ class Algorithm
 {
 public:
     Algorithm();
+    ~Algorithm();
 };
 
 #endif // ALGORITHM_H

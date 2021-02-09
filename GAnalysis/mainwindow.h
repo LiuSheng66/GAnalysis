@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include"Drawing/paintarea.h"
-#include"Command/command.h"
+#include"Command/gcommand.h"
 #include<QScrollArea>//提供画布的滚动条
 #include <QList>
 #include<QTextEdit>
@@ -34,6 +34,7 @@ private:
     QMenu *editMenu;//编辑菜单栏
     QMenu *viewMenu;//编辑菜单栏
     QMenu *analysisMenu;//绘图菜单栏
+    QMenu *toolMenu;//绘图菜单栏
     QMenu *HelpMenu;//帮助菜单栏
 
     //声明工具栏

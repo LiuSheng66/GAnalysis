@@ -12,6 +12,7 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
     updateLineNumberAreaWidth(0);
     setMode(BROWSE);
 }
+
 int CodeEditor::lineNumberAreaWidth()
 {
     int digits = 1;
@@ -22,13 +23,12 @@ int CodeEditor::lineNumberAreaWidth()
     }
 
     int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
-
     return space;
 }
 
 void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
 {
-    setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
+    setViewportMargins(lineNumberAreaWidth(), 0,0, 0);
 }
 
 void CodeEditor::updateLineNumberArea(const QRect &rect, int dy)
@@ -49,6 +49,7 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
     QRect cr = contentsRect();
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
+
 void CodeEditor::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
@@ -56,22 +57,25 @@ void CodeEditor::highlightCurrentLine()
     if (!isReadOnly()) {
         QTextEdit::ExtraSelection selection;
 
-        QColor lineColor = QColor(Qt::yellow).lighter(160);
+        QColor lineColor = QColor(Qt::blue).lighter(185);//设置当前鼠标所在行的背景色颜色
 
         selection.format.setBackground(lineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-        //selection.cursor = textCursor();
-        //selection.cursor.clearSelection();
+        selection.cursor = textCursor();
+        selection.cursor.clearSelection();
         extraSelections.append(selection);
     }
 
     setExtraSelections(extraSelections);
 }
 
+//行号的绘画事件
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
     QPainter painter(lineNumberArea);
-    painter.fillRect(event->rect(), Qt::lightGray);
+//    QPen pen(Qt::blue);
+//    painter.setPen(pen);
+    painter.fillRect(event->rect(), Qt::lightGray);//设置行号显示区域的背景色
 
 
     QTextBlock block = firstVisibleBlock();
@@ -82,7 +86,9 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     while (block.isValid() && top <= event->rect().bottom()) {
         if (block.isVisible() && bottom >= event->rect().top()) {
             QString number = QString::number(blockNumber + 1);
-            painter.setPen(Qt::black);
+            painter.setPen(QColor(105,105,105));//设置边框的行号的字体显示颜色
+            QFont font=QFont("宋体",15);//设置边框的行号显示的字体及字体大小
+            painter.setFont(font);
             painter.drawText(-2, top, lineNumberArea->width(), fontMetrics().height(),
                              Qt::AlignRight, number);
         }
@@ -93,6 +99,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
         ++blockNumber;
     }
 }
+
 void CodeEditor::setMode(editorMode mode)
 {
     if(mode == BROWSE)
@@ -108,3 +115,6 @@ void CodeEditor::setMode(editorMode mode)
          highlightCurrentLine();
     }
 }
+
+
+
