@@ -23,5 +23,7 @@
         <file>image/icon/Gtitle.png</file>
         <file>image/icon/pauseAnalysis.png</file>
         <file>image/icon/analysis.png</file>
+        <file>image/SettingList/algorithm.png</file>
+        <file>image/SettingList/textEdit.png</file>
     </qresource>
 </RCC>

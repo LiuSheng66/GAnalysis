@@ -26,7 +26,9 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     GeometricFigure/geometricfigure.cpp \
+    setting/algorithmWindow/algorithmset.cpp \
     setting/settingmainwindow.cpp \
+    setting/textEdit/texteditset.cpp \
     syntax/codeeditor.cpp \
     syntax/myhighlighter.cpp
 
@@ -40,14 +42,18 @@ HEADERS += \
     Drawing/paintarea.h \
     mainwindow.h \
     GeometricFigure/geometricfigure.h \
+    setting/algorithmWindow/algorithmset.h \
     setting/settingmainwindow.h \
+    setting/textEdit/texteditset.h \
     syntax/codeeditor.h \
     syntax/myhighlighter.h
 
 
 FORMS += \
     mainwindow.ui \
-    setting/settingmainwindow.ui
+    setting/algorithmWindow/algorithmset.ui \
+    setting/settingmainwindow.ui \
+    setting/textEdit/texteditset.ui
 
 
 

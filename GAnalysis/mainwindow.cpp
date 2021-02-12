@@ -16,6 +16,8 @@
 #include<Command/mycommand.h>
 #include"setting/settingmainwindow.h"
 
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -50,6 +52,11 @@ void MainWindow:: mouseMovePoint()
 { //鼠标移动响应
     QPointF pt=QPointF(area->x(),area->y());
     xyLabel->setText(QString::asprintf("X=%.1f,Y=%.2f",pt.x(),pt.y())); //状态栏显示
+}
+
+void MainWindow::outAllDisplay(QString str)
+{
+    textOutput->append(str);
 }
 
 void MainWindow::setLayout()
@@ -232,9 +239,11 @@ void MainWindow::CreateActions()//实例化下拉菜单功能
                                    "使用时，需要注意一下问题：\n"
                                    "  1.精度为6位有效数字 ");
     });
+
     //**************************************************************************************************//
     //*************************************    状态栏     *********************************************//
 //    void(PaintArea:: *qw)(QPoint)=&PaintArea::mouseMoveSig;
+
 
 //    connect(area,qw,this,&MainWindow::mouseMovePoint);  //鼠标移动事件
 //SIGNAL(mouseMovePoint(QPoint)) SLOT(mouseMovePoint)
@@ -390,6 +399,7 @@ void MainWindow::TestFun()
 {
     QMessageBox::information(this,tr("测试函数"),tr("按钮测试成功!"));
 }
+
 
 void MainWindow::OpenFile()
 {
@@ -594,6 +604,8 @@ void MainWindow::DealWithAnalysis()
 void MainWindow::Setting()
 {
     SettingMainWindow *settingWindow = new SettingMainWindow(this);
+    //SettingMainWindow需要显示的输出内容，跟槽函数进行绑定
+    connect(settingWindow,SIGNAL(outTextChanged(QString)),this,SLOT(outAllDisplay(QString)));
     settingWindow->setWindowModality(Qt::ApplicationModal);//设置当前窗口为模态对话框
     settingWindow->show();
 }

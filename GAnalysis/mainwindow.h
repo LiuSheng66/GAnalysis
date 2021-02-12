@@ -58,9 +58,9 @@ private:
     QTextEdit *textEditGCode;//G代码编辑窗口部件
     CodeEditor *gEditWidget;//使用自定义的G代码编辑界面
     QTextEdit *textDisplayGCode;//G代码编辑窗口部件
-
+public:
     QTextEdit *textOutput;//输出窗口部件
-
+private:
     //声明每个Action的具体内容
     QAction *openFileAct;//打开文件菜单
     QAction *newFileAct;//创建新文件菜单
@@ -110,9 +110,10 @@ private:
     void setTextColor(QTextEdit *textEdit,QColor *color);//设置文字编辑框的文字颜色
 
     void ConvertShowOrHide(QWidget *widget);//对输入的窗口，进行切换窗口的显示或隐藏
-public:
+public slots:
     //槽函数
     void mouseMovePoint();//自定义槽函数，根据画布空间的鼠标移动提供槽函数支持
+    void outAllDisplay(QString str);
 private:
     //事件
     void paintEvent(QPaintEvent *event);
