@@ -23,6 +23,7 @@ SOURCES += \
     Command/mycommandrules.cpp \
     CoordinateSystem/coordinatesystem.cpp \
     Drawing/paintarea.cpp \
+    configure/appconfigure.cpp \
     main.cpp \
     mainwindow.cpp \
     GeometricFigure/geometricfigure.cpp \
@@ -40,6 +41,7 @@ HEADERS += \
     Command/mycommandrules.h \
     CoordinateSystem/coordinatesystem.h \
     Drawing/paintarea.h \
+    configure/appconfigure.h \
     mainwindow.h \
     GeometricFigure/geometricfigure.h \
     setting/algorithmWindow/algorithmset.h \

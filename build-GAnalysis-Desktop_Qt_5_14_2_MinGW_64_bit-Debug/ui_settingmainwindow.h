@@ -33,13 +33,12 @@ public:
     QPushButton *pushButton_OK;
     QPushButton *pushButton_Cancle;
     QPushButton *pushButton_Apply;
-    QSplitter *splitter_4;
     QSplitter *splitter_2;
     QSplitter *splitter;
     QLineEdit *lineEdit_search;
     QListWidget *listWidgetItem;
     QSplitter *splitter_3;
-    QLabel *tabMainTitle;
+    QLabel *tabMainTopTitle;
     QWidget *saveForWidget;
 
     void setupUi(QMainWindow *SettingMainWindow)
@@ -76,12 +75,9 @@ public:
 
         horizontalLayout_5->addWidget(pushButton_Apply);
 
-        splitter_4 = new QSplitter(centralwidget);
-        splitter_4->setObjectName(QString::fromUtf8("splitter_4"));
-        splitter_4->setGeometry(QRect(10, 30, 1031, 531));
-        splitter_4->setOrientation(Qt::Horizontal);
-        splitter_2 = new QSplitter(splitter_4);
+        splitter_2 = new QSplitter(centralwidget);
         splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
+        splitter_2->setGeometry(QRect(10, 30, 130, 531));
         splitter_2->setOrientation(Qt::Horizontal);
         splitter = new QSplitter(splitter_2);
         splitter->setObjectName(QString::fromUtf8("splitter"));
@@ -97,28 +93,24 @@ public:
         listWidgetItem->setMaximumSize(QSize(130, 16777215));
         splitter->addWidget(listWidgetItem);
         splitter_2->addWidget(splitter);
-        splitter_4->addWidget(splitter_2);
-        splitter_3 = new QSplitter(splitter_4);
+        splitter_3 = new QSplitter(centralwidget);
         splitter_3->setObjectName(QString::fromUtf8("splitter_3"));
+        splitter_3->setGeometry(QRect(150, 20, 881, 541));
         splitter_3->setOrientation(Qt::Vertical);
-        tabMainTitle = new QLabel(splitter_3);
-        tabMainTitle->setObjectName(QString::fromUtf8("tabMainTitle"));
-        tabMainTitle->setMinimumSize(QSize(0, 25));
-        tabMainTitle->setMaximumSize(QSize(16777215, 25));
+        tabMainTopTitle = new QLabel(splitter_3);
+        tabMainTopTitle->setObjectName(QString::fromUtf8("tabMainTopTitle"));
+        tabMainTopTitle->setMinimumSize(QSize(0, 25));
+        tabMainTopTitle->setMaximumSize(QSize(16777215, 25));
         QFont font;
-        font.setFamily(QString::fromUtf8("\345\215\216\346\226\207\344\273\277\345\256\213"));
-        font.setPointSize(17);
+        font.setPointSize(11);
         font.setBold(true);
         font.setWeight(75);
-        tabMainTitle->setFont(font);
-        tabMainTitle->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-        tabMainTitle->setMargin(2);
-        splitter_3->addWidget(tabMainTitle);
+        tabMainTopTitle->setFont(font);
+        splitter_3->addWidget(tabMainTopTitle);
         saveForWidget = new QWidget(splitter_3);
         saveForWidget->setObjectName(QString::fromUtf8("saveForWidget"));
         saveForWidget->setMinimumSize(QSize(0, 0));
         splitter_3->addWidget(saveForWidget);
-        splitter_4->addWidget(splitter_3);
         SettingMainWindow->setCentralWidget(centralwidget);
 
         retranslateUi(SettingMainWindow);
@@ -132,7 +124,7 @@ public:
         pushButton_OK->setText(QCoreApplication::translate("SettingMainWindow", "OK", nullptr));
         pushButton_Cancle->setText(QCoreApplication::translate("SettingMainWindow", "Cancle", nullptr));
         pushButton_Apply->setText(QCoreApplication::translate("SettingMainWindow", "Apply", nullptr));
-        tabMainTitle->setText(QCoreApplication::translate("SettingMainWindow", "\347\256\227\346\263\225", nullptr));
+        tabMainTopTitle->setText(QCoreApplication::translate("SettingMainWindow", "TextLabel", nullptr));
     } // retranslateUi
 
 };

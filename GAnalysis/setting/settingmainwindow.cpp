@@ -5,12 +5,15 @@
 #include<QSettings>
 #include<QMessageBox>
 #include<QDir>
-#include"setting/algorithmWindow/algorithmset.h"
+#include<QDebug>
 
-#include"setting/textEdit/texteditset.h"
 SettingMainWindow::SettingMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::SettingMainWindow)
+    ,itemLayout (new QVBoxLayout)
+    ,algoSet(new algorithmSet)
+    ,textSet(new TextEditSet)
+
 {
     ui->setupUi(this);
     setLayout(); 
@@ -33,22 +36,12 @@ void SettingMainWindow::setLayout()
 
     ui->lineEdit_search->setPlaceholderText("Filter");//设置搜索框的提示符
 
-
-    //初始化时显示算法设置的具体细节画面
-    algorithmSet *algo=new algorithmSet(this);
-    TextEditSet *textSet=new TextEditSet(this);
-    QVBoxLayout *Layout = new QVBoxLayout;
-    Layout->addWidget(algo);
-//    Layout->removeWidget(algo);
-    Layout->replaceWidget(algo,textSet);
-//    Layout->addWidget(textSet);
-    ui->saveForWidget->setLayout(Layout);
+    //添加的第一个是初始显示画面，这个每新建一个功能界面需要新添加到Layout中
+    itemLayout->addWidget(algoSet);
+    itemLayout->addWidget(textSet);
+    setTabMainTitle("算法");
+    ui->saveForWidget->setLayout(itemLayout);
     ui->saveForWidget->show();
-
-
-//    QVBoxLayout *textSetLayout = new QVBoxLayout;
-
-
 
 }
 
@@ -58,6 +51,8 @@ void SettingMainWindow::CreateActions()
     connect(ui->pushButton_OK, &QPushButton::clicked, this, &SettingMainWindow::btnOKFun);
     connect(ui->pushButton_Cancle, &QPushButton::clicked, this, &SettingMainWindow::btnCanaleFun);
     connect(ui->pushButton_Apply, &QPushButton::clicked, this, &SettingMainWindow::btnApplyFun);
+
+    QObject::connect(ui->listWidgetItem,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(JumpWidget(QListWidgetItem*)));
 }
 
 //初始化ListWidget的Item
@@ -160,6 +155,44 @@ bool SettingMainWindow::isFileExist(QString strFileAddress)
 
 void SettingMainWindow::setTabMainTitle(QString str)
 {
-    ui->tabMainTitle->setText(str);
+    ui->tabMainTopTitle->setMargin(30);//设置边距
+    ui->tabMainTopTitle->clear();
+    ui->tabMainTopTitle->setText(str);
 }
 
+
+void SettingMainWindow::JumpWidget(QListWidgetItem *itemIdex)
+{
+    setTabMainTitle(itemIdex->text());//设置跳转功能界面的总标题
+    if(itemIdex==algoList)
+    {
+       setOtherHide();
+       connectItemToWidget(itemIdex)->show();
+    };
+    if(itemIdex==textEditList)
+    {
+        setOtherHide();
+        connectItemToWidget(itemIdex)->show();
+    };
+
+}
+
+QMainWindow *SettingMainWindow::connectItemToWidget(QListWidgetItem *ItemList)
+{
+    if(ItemList==algoList)
+    {
+        return algoSet;
+    };
+    if(ItemList==textEditList)
+    {
+        return textSet;
+    };
+
+}
+
+//每添加一个新的功能界面，都需要在这里添加hide步骤
+void SettingMainWindow::setOtherHide()
+{
+    algoSet->hide();
+    textSet->hide();
+}

@@ -128,20 +128,7 @@
          <string> 字型：</string>
         </property>
        </widget>
-       <widget class="QComboBox" name="comboBox">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>100</height>
-         </size>
-        </property>
-       </widget>
+       <widget class="QFontComboBox" name="fontComboBox"/>
       </widget>
      </widget>
     </widget>

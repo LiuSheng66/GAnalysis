@@ -101,7 +101,9 @@ private:
 
     void TestFun();
 
-    void DealWithAnalysis();
+    void beginAnalysis();
+    void onlyAnalysis();
+
     void Setting();
 
 

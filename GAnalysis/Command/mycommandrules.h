@@ -47,11 +47,23 @@ enum systemType{
     ABSOLUTE_CSYS//绝对坐标系
 };
 
+//坐标单位
+enum lengthUnit{
+    INCH_LENGTH,//英制
+    METER_LENGTH,//米制
+};
+
 //补偿
 enum Offset{
     L_OFFSET,//左切割补偿
     R_OFFSET,//右切割补偿
     CANALE_OFFSET//取消切割补偿
+};
+
+//绘画的线型
+enum lineType{
+    STR_LINE,//直线
+    ARC_LINE //圆弧
 };
 
 //指令是否需要坐标参数配合使用
@@ -61,17 +73,6 @@ enum cmdNeedPara{
     REGARDLESS_PARA//有没有参数都可以执行
 };
 
-//template <typename T>
-//class gPoint{
-//public:
-//    gPoint();
-//    ~gPoint();
-//public:
-//    T x;
-//    T y;
-//    T i;
-//    T j;
-//};
 
 class gPoint
 {
@@ -93,10 +94,11 @@ public:
     ~CommandStatus();
 
 public:
-    bool isCorrect=true;//指令是否正确,功能还没做，先初始化为true
-    systemType coordinate_System=ABSOLUTE_CSYS;//基于何种坐标系计算,默认使用绝对坐标系
-    Offset coordinateOffset=CANALE_OFFSET;//坐标补偿，默认关闭坐标补偿
-    CodeType codeType;//指令含义
+    bool isCorrect;//指令是否正确,功能还没做，先初始化为true
+    systemType coordinate_System;//基于何种坐标系计算,默认使用绝对坐标系
+    lengthUnit unitLen;//长度单位
+    Offset coordinateOffset;//坐标补偿，默认关闭坐标补偿
+    lineType line;//指令含义
     bool isNeedCoordinate;//指令是否需要坐标信息
     bool isNeedFire;//是否需要切割工作
     gPoint point;//坐标信息

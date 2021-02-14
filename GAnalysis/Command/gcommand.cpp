@@ -10,7 +10,7 @@ GCommand::GCommand()
 GCommand::GCommand(CodeEditor &inputPlainText)
 {
     setInCommandText(inputPlainText);
-    QStringList stringList=splitBy(commandStrTol," ");
+//    QStringList stringList=splitBy(commandStrTotal," ");
 //    for(int row=0;row<stringList.length();row++)
 //    {
 //        qDebug()<<"gcommand QStringList:"<<stringList[row];
@@ -38,7 +38,7 @@ GCommand::~GCommand()
  void GCommand::setInCommandText(CodeEditor &inputPlainText)
  {
     commandPlainText=&inputPlainText;
-    commandStrTol=inputPlainText.toPlainText();
+    commandStrTotal=inputPlainText.toPlainText();
 
  }
 
@@ -72,17 +72,17 @@ GCommand::~GCommand()
      return res;
  }
 
- QStringList GCommand::splitBySentence(const QString &inText, QString keyword)
+ QStringList GCommand::splitBySentence(const QString &inText)
  {
-     keyword="\n";
+     QString keyword="\n";
      //按换行符\n分割文本内容
      QStringList sentenceByEnterList=splitBy(inText,keyword);
      return sentenceByEnterList;
  }
 
- QStringList GCommand::splitByWord(QString &inText, QString keyword)
+ QStringList GCommand::splitByWord(QString &inText)
  {
-     keyword=" ";
+     QString keyword=" ";
      //按换行符\n分割文本内容
      QStringList wordBySpaceList=splitBy(inText,keyword);
      return wordBySpaceList;
@@ -103,10 +103,10 @@ GCommand::~GCommand()
          return false;
  }
 
- //
- double GCommand::coordinateStrToDouble(const QString & coordinate)
+ //把如X10.02等字符串处理为坐标数据
+ double GCommand::coordinateStrToDouble(const QString  coordinate)
  {
-     float mycoordinate=0;//返回的数字坐标
+     double mycoordinate=0;//返回的数字坐标
      QString str=coordinate;
      if(!str.isEmpty())
      {

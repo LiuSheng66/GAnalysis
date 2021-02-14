@@ -72,99 +72,95 @@
      </item>
     </layout>
    </widget>
-   <widget class="QSplitter" name="splitter_4">
+   <widget class="QSplitter" name="splitter_2">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>1031</width>
+      <width>130</width>
       <height>531</height>
      </rect>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
     </property>
-    <widget class="QSplitter" name="splitter_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <widget class="QSplitter" name="splitter">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <widget class="QLineEdit" name="lineEdit_search">
-       <property name="minimumSize">
-        <size>
-         <width>130</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>130</width>
-         <height>25</height>
-        </size>
-       </property>
-      </widget>
-      <widget class="QListWidget" name="listWidgetItem">
-       <property name="minimumSize">
-        <size>
-         <width>130</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>130</width>
-         <height>16777215</height>
-        </size>
-       </property>
-      </widget>
-     </widget>
-    </widget>
-    <widget class="QSplitter" name="splitter_3">
+    <widget class="QSplitter" name="splitter">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QLabel" name="tabMainTitle">
+     <widget class="QLineEdit" name="lineEdit_search">
       <property name="minimumSize">
        <size>
-        <width>0</width>
+        <width>130</width>
         <height>25</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>16777215</width>
+        <width>130</width>
         <height>25</height>
        </size>
       </property>
-      <property name="font">
-       <font>
-        <family>华文仿宋</family>
-        <pointsize>17</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>算法</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-      </property>
-      <property name="margin">
-       <number>2</number>
-      </property>
      </widget>
-     <widget class="QWidget" name="saveForWidget" native="true">
+     <widget class="QListWidget" name="listWidgetItem">
       <property name="minimumSize">
        <size>
-        <width>0</width>
+        <width>130</width>
         <height>0</height>
        </size>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>16777215</height>
+       </size>
+      </property>
      </widget>
+    </widget>
+   </widget>
+   <widget class="QSplitter" name="splitter_3">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>20</y>
+      <width>881</width>
+      <height>541</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <widget class="QLabel" name="tabMainTopTitle">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="saveForWidget" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
     </widget>
    </widget>
   </widget>

@@ -12,6 +12,7 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QFontComboBox>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
@@ -38,7 +39,7 @@ public:
     QSpinBox *spinBox;
     QSplitter *splitter;
     QLabel *label;
-    QComboBox *comboBox;
+    QFontComboBox *fontComboBox;
     QWidget *tab_2;
     QPushButton *pushButton_2;
     QWidget *tab_3;
@@ -93,11 +94,9 @@ public:
         label = new QLabel(splitter);
         label->setObjectName(QString::fromUtf8("label"));
         splitter->addWidget(label);
-        comboBox = new QComboBox(splitter);
-        comboBox->setObjectName(QString::fromUtf8("comboBox"));
-        comboBox->setMinimumSize(QSize(100, 0));
-        comboBox->setMaximumSize(QSize(16777215, 100));
-        splitter->addWidget(comboBox);
+        fontComboBox = new QFontComboBox(splitter);
+        fontComboBox->setObjectName(QString::fromUtf8("fontComboBox"));
+        splitter->addWidget(fontComboBox);
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));

@@ -206,13 +206,13 @@ void MainWindow::CreateActions()//实例化下拉菜单功能
     analysisAndDawAct = new QAction(BeginAnalysActIcon, QStringLiteral("执行(&U)"), this);
     analysisAndDawAct->setStatusTip(QStringLiteral("执行"));
     analysisAndDawAct->setShortcuts(QKeySequence::Open);//打开快捷键
-    connect(analysisAndDawAct, &QAction::triggered, this, &MainWindow::TestFun);
+    connect(analysisAndDawAct, &QAction::triggered, this, &MainWindow::beginAnalysis);
 
     const QIcon AnalysActIcon =QIcon(":/image/icon/analysis.png");
     analysisAct = new QAction(AnalysActIcon, QStringLiteral("解析(&U)"), this);
     analysisAct->setStatusTip(QStringLiteral("解析"));
     analysisAct->setShortcuts(QKeySequence::Open);//打开快捷键
-    connect(analysisAct, &QAction::triggered, this, &MainWindow::TestFun);
+    connect(analysisAct, &QAction::triggered, this, &MainWindow::onlyAnalysis);
 
 
     //**************************************************************************************************//
@@ -438,6 +438,7 @@ void MainWindow::OpenFile()
     textEditGCode->setPalette(TextColorPal);
 
 //    GCommand *sdf=new GCommand(*gEditWidget);
+
 }
 
 
@@ -592,15 +593,17 @@ void MainWindow::CloseFile()
 
 }
 
-void MainWindow::DealWithAnalysis()
+void MainWindow::beginAnalysis()
 {
-        const QIcon PauseAnalysActIcon =QIcon(":/image/icon/pauseAnalysis.png");
-        analysisAndDawAct ->setIcon(PauseAnalysActIcon);
-        analysisAndDawAct->setStatusTip(QStringLiteral("暂停"));
-//        QMessageBox::information(this,tr("测试函数"),tr("已点击"));
-
+    const QIcon PauseAnalysActIcon =QIcon(":/image/icon/pauseAnalysis.png");
+    analysisAndDawAct ->setIcon(PauseAnalysActIcon);
+    analysisAndDawAct->setStatusTip(QStringLiteral("暂停"));
+    QMessageBox::information(this,tr("测试函数"),tr("已点击"));
 }
-
+void MainWindow::onlyAnalysis()
+{
+    MyCommand *dsfg=new MyCommand(*gEditWidget);
+}
 void MainWindow::Setting()
 {
     SettingMainWindow *settingWindow = new SettingMainWindow(this);

@@ -14,9 +14,7 @@
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QRadioButton>
 #include <QtWidgets/QTabWidget>
-#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -28,11 +26,6 @@ public:
     QTabWidget *tabWidget;
     QWidget *tab;
     QGroupBox *groupBox;
-    QWidget *verticalLayoutWidget;
-    QVBoxLayout *verticalLayout;
-    QRadioButton *radioButton;
-    QRadioButton *radioButton_2;
-    QPushButton *pushButton;
     QWidget *tab_2;
     QPushButton *pushButton_2;
     QWidget *tab_3;
@@ -58,27 +51,6 @@ public:
         QFont font;
         font.setPointSize(11);
         groupBox->setFont(font);
-        verticalLayoutWidget = new QWidget(groupBox);
-        verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(20, 30, 194, 83));
-        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
-        verticalLayout->setSpacing(12);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        verticalLayout->setContentsMargins(0, 0, 0, 0);
-        radioButton = new QRadioButton(verticalLayoutWidget);
-        radioButton->setObjectName(QString::fromUtf8("radioButton"));
-        radioButton->setFont(font);
-
-        verticalLayout->addWidget(radioButton);
-
-        radioButton_2 = new QRadioButton(verticalLayoutWidget);
-        radioButton_2->setObjectName(QString::fromUtf8("radioButton_2"));
-
-        verticalLayout->addWidget(radioButton_2);
-
-        pushButton = new QPushButton(groupBox);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-        pushButton->setGeometry(QRect(320, 30, 75, 23));
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
@@ -106,9 +78,6 @@ public:
     {
         algorithmSet->setWindowTitle(QCoreApplication::translate("algorithmSet", "MainWindow", nullptr));
         groupBox->setTitle(QCoreApplication::translate("algorithmSet", " \350\277\236\347\273\255\345\210\207\345\211\262\346\250\241\345\274\217", nullptr));
-        radioButton->setText(QCoreApplication::translate("algorithmSet", "\351\200\220\347\202\271\346\257\224\350\276\203\346\263\225", nullptr));
-        radioButton_2->setText(QCoreApplication::translate("algorithmSet", "DDA\357\274\210\346\225\260\345\255\227\347\247\257\345\210\206\346\263\225\357\274\211", nullptr));
-        pushButton->setText(QCoreApplication::translate("algorithmSet", "\351\207\215\347\275\256", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab), QCoreApplication::translate("algorithmSet", "\350\277\236\347\273\255\345\210\207\345\211\262\346\250\241\345\274\217", nullptr));
         pushButton_2->setText(QCoreApplication::translate("algorithmSet", "PushButton", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QCoreApplication::translate("algorithmSet", "Tab 2", nullptr));

@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include<QListWidgetItem>
+#include<QVBoxLayout>
+#include"setting/algorithmWindow/algorithmset.h"
+#include"setting/textEdit/texteditset.h"
 namespace Ui {
 class SettingMainWindow;
 }
@@ -33,12 +36,27 @@ public:
     QString getConfi(QString strFileAddressAndName ,QString SectionName,QString keyName);
     bool isFileExist(QString strFileAddress);
 
-    void setTabMainTitle(QString str);
+    void setTabMainTitle(QString str);//设置每一个功能界面的总标题
 
+    QMainWindow* connectItemToWidget(QListWidgetItem *ItemList);//把每一个ListItem跟相应需要显示Widget绑定
+    void setOtherHide();//把添加到布局中的所有Widget全部设置成Hide
 public:
+    QVBoxLayout *itemLayout ;//用于设置各个item的布局空间
+
     //选项总界面的左边ListWidget里面每个Item的指针
     QListWidgetItem *algoList;//算法
     QListWidgetItem *textEditList;//文本编辑器
+
+    //每个具体Item的界面对象指针
+    algorithmSet *algoSet;
+    TextEditSet *textSet;
+
+
+
+private slots:
+    void JumpWidget(QListWidgetItem *itemIdex);//槽函数
+
+
 };
 
 #endif // SETTINGMAINWINDOW_H
