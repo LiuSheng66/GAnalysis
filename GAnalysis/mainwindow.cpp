@@ -133,7 +133,7 @@ void MainWindow::setLayout()
     outPutdockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures); // 设置可移动
     outPutdockWidget ->setMinimumSize(this->width()-workSpaceDockWidget->width()-PropertyDockWidget->width(),150 );
     textOutput=new QTextEdit(this);
-    MyHighLighter *highlighter1 = new MyHighLighter(textOutput->document());
+
     outPutdockWidget->setWidget(textOutput);
 
 //    splitDockWidget(dockWidget_1,dockWidget_2,Qt::Horizontal);
@@ -604,7 +604,7 @@ void MainWindow::beginAnalysis()
 void MainWindow::onlyAnalysis()
 {
     MyCommand *dsfg=new MyCommand(*gEditWidget);
-    StraightLinePTPCM *dsg=new StraightLinePTPCM;
+    StraightLinePTPCM *dsg=new StraightLinePTPCM(QPoint(0,0),QPoint(20,50));
     dsg->algorithmBengin(dsg);//此处根据传入的算法对象不同，实现不同的算法，多态发生
 }
 void MainWindow::Setting()
