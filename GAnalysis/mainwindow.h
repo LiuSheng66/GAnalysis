@@ -57,7 +57,7 @@ private:
     //声明DockWidget的填充部件内容
     QTextEdit *textEditGCode;//G代码编辑窗口部件
     CodeEditor *gEditWidget;//使用自定义的G代码编辑界面
-    QTextEdit *textDisplayGCode;//G代码编辑窗口部件
+    QTextEdit *textDisplayGCode;//G代码显示窗口部件
 public:
     QTextEdit *textOutput;//输出窗口部件
 private:

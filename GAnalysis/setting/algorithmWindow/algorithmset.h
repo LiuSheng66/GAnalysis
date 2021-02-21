@@ -2,6 +2,7 @@
 #define ALGORITHMSET_H
 
 #include <QMainWindow>
+//#include"setting/settingmainwindow.h"
 #include<QButtonGroup>
 #include<QRadioButton>
 #include<QPushButton>

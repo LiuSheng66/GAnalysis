@@ -2,7 +2,7 @@
 #define TEXTEDITSET_H
 
 #include <QMainWindow>
-
+//#include"setting/settingmainwindow.h"
 namespace Ui {
 class TextEditSet;
 }
