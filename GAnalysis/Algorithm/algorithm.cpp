@@ -1,5 +1,6 @@
 #include "algorithm.h"
 
+//所有算法的坐标输入点，从此基类开始
 Algorithm::Algorithm()
 {
 
@@ -19,6 +20,12 @@ QVector<QPoint> Algorithm::algorithmExport()
 void Algorithm::algorithmBengin(Algorithm *begin)
 {
     begin->algorithmEntry();
+}
+
+void Algorithm::setInitPoint(QPoint begin, QPoint end)
+{
+    beginPoint=begin;
+    endPoint=end;
 }
 
 QPoint Algorithm::OtherToOriginalPoint(QPoint &point)//double Point_X,double Point_Y

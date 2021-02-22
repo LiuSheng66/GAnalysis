@@ -3,7 +3,7 @@
 #include<QString>
 #include<QTextDocument>
 #include<syntax/codeeditor.h>
-
+#include"Command/mycommandrules.h"
 
 
 
@@ -15,7 +15,9 @@ public:
     GCommand(CodeEditor &commandPlainText);
     virtual ~GCommand();
 
-    virtual void implementCommand()=0;
+    virtual void commandEntry()=0;//指令解析的入口
+    virtual QVector<CommandStatus*> commandExport();//指令解析的输出
+    void commandFrame(GCommand *begin);//指令解析的框架
 
     void setInCommandText(CodeEditor &inputPlainText);
 
@@ -34,10 +36,11 @@ protected:
     QString commandStrTotal;//导入的总指令
 private:
 
-
-
     QStringList sentenceList;//按照换行符分割字符
     QStringList wordCommandList;//按照空格分割字符
+public:
+    QVector<CommandStatus*> cmdFinal;//指令解析完成后保存的指令具体信息
+
 
 };
 

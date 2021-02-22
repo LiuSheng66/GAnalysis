@@ -10,6 +10,7 @@
 #include<QLabel>
 #include<QPushButton>
 #include"syntax/codeeditor.h"
+#include"GDebug/gdebug.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -60,6 +61,10 @@ private:
     QTextEdit *textDisplayGCode;//G代码显示窗口部件
 public:
     QTextEdit *textOutput;//输出窗口部件
+    //    GDebug *outMessageDisplay;//按照继承QTextEdit自定义的类，来显示程序的各种消息
+
+    QString addStrConfi="C://Users//Administrator//Desktop//homework//CONFIG.ini";
+
 private:
     //声明每个Action的具体内容
     QAction *openFileAct;//打开文件菜单
@@ -106,6 +111,10 @@ private:
 
     void Setting();
 
+    //配置文件读写操作
+    void setConfi(QString strFileAddressAndName ,QString SectionName,QString keyName,QString keyValue="0");//设置ini文件的参数
+    QString getConfi(QString strFileAddressAndName ,QString SectionName,QString keyName);
+    bool isFileExist(QString strFileAddress);
 
     void removeAllDock();
     void showDock(const QList<int>& index = QList<int>());
@@ -116,6 +125,7 @@ public slots:
     //槽函数
     void mouseMovePoint();//自定义槽函数，根据画布空间的鼠标移动提供槽函数支持
     void outAllDisplay(QString str);
+//    void gDisplay(QString strDislay);
 private:
     //事件
     void paintEvent(QPaintEvent *event);

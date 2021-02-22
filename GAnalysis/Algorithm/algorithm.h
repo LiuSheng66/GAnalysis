@@ -15,13 +15,18 @@ public:
     virtual QVector<QPoint> algorithmExport();//算法的坐标输出
     void algorithmBengin(Algorithm *begin);//框架，调用不同的算法，实现多态
 
+    void setInitPoint(QPoint begin,QPoint end);
+
     QPoint OtherToOriginalPoint(QPoint &point);//把所给坐标平移到原点，并返回平移值
     int GetQuadrantJudge(double Point_X, double Point_Y);//得到当前点的所在象限
-//protected:
+public:
 //    QPoint beginPoint;//起点坐标
 //    QPoint endPoint;//结束坐标
 //     int Begin_X, Begin_Y;//起点坐标
 //     int End_X, End_Y;//终点坐标
+
+    QPoint beginPoint;//算法计算开始坐标点
+    QPoint endPoint;//算法计算终点
 public:
      QVector<QPoint> AllCoordinate_array;//算法计算线段得到的每个坐标的集合
 };

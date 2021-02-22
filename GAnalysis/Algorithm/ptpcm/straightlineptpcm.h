@@ -11,8 +11,7 @@ private:
     int Line_Result;//每一次计算的偏差判定值
     int Step;
 
-    QPoint beginPoint;//算法计算开始坐标点
-    QPoint endPoint;//算法计算终点
+
 
 public:
 

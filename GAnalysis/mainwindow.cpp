@@ -59,6 +59,8 @@ void MainWindow::outAllDisplay(QString str)
     textOutput->append(str);
 }
 
+
+
 void MainWindow::setLayout()
 {
     //程序标题
@@ -133,8 +135,11 @@ void MainWindow::setLayout()
     outPutdockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures); // 设置可移动
     outPutdockWidget ->setMinimumSize(this->width()-workSpaceDockWidget->width()-PropertyDockWidget->width(),150 );
     textOutput=new QTextEdit(this);
-
+    QFont *outFont=new QFont( "宋体", 11);
+    textOutput->setFont(*outFont);
     outPutdockWidget->setWidget(textOutput);
+
+
 
 //    splitDockWidget(dockWidget_1,dockWidget_2,Qt::Horizontal);
 
@@ -248,6 +253,7 @@ void MainWindow::CreateActions()//实例化下拉菜单功能
 
 //    connect(area,qw,this,&MainWindow::mouseMovePoint);  //鼠标移动事件
 //SIGNAL(mouseMovePoint(QPoint)) SLOT(mouseMovePoint)
+
 }
 
 //实例化菜单栏
@@ -600,12 +606,51 @@ void MainWindow::beginAnalysis()
     analysisAndDawAct ->setIcon(PauseAnalysActIcon);
     analysisAndDawAct->setStatusTip(QStringLiteral("暂停"));
     QMessageBox::information(this,tr("测试函数"),tr("已点击"));
+
 }
 void MainWindow::onlyAnalysis()
 {
-    MyCommand *dsfg=new MyCommand(*gEditWidget);
-    StraightLinePTPCM *dsg=new StraightLinePTPCM(QPoint(0,0),QPoint(20,50));
-    dsg->algorithmBengin(dsg);//此处根据传入的算法对象不同，实现不同的算法，多态发生
+    //第一步，输入指令得到解析的指令
+    GCommand *baseCommand=NULL;//抽象类，指令解析基类
+    MyCommand *mycommand=new MyCommand(*gEditWidget);//初始化指令文本输入
+    //判断读取到的指令系统
+    if(getConfi(addStrConfi,"CommandSystem","GCommand")=="MyCommand")
+    {
+        outAllDisplay("MainWindow::onlyAnalysis()： 读取到的指令解析系统为 MyCommand");
+        baseCommand->commandFrame(mycommand);
+        outAllDisplay(mycommand->isCmdAnalysisFinish());//通过指令解析系统是否完成函数，输出正常结束还是异常原因
+    }
+    else
+    {
+        outAllDisplay("MainWindow::onlyAnalysis()： 没有读取到具体的指令解析系统，程序终止！");
+        return;//没有读取到指令系统则直接结束整体所有工作
+    };
+    //第二步，按照解析后的指令，通过匹配算法进行计算
+
+    //第三步，根据算法计算后的坐标轨迹进行输出（绘画，坐标输出，文件输出）
+
+
+    StraightLinePTPCM *algoPTPCM=new StraightLinePTPCM();
+    Algorithm *base=NULL;
+    //起点和终点坐标输入，后期需要由指令得到
+    algoPTPCM->setInitPoint(QPoint(0,0), QPoint(30,190));
+    //输出得到的起点和终点坐标
+    QString strLine = QString("得到起始点坐标信息:(%1 ,%2) -> (%3 ,%4)").arg(algoPTPCM->beginPoint.rx()).arg(algoPTPCM->beginPoint.ry()).arg(algoPTPCM->endPoint.rx()).arg(algoPTPCM->endPoint.ry());
+    textOutput->append(strLine);
+
+    base->algorithmBengin(algoPTPCM);//此处根据传入的算法对象不同，实现不同的算法，多态发生
+
+    //把临时坐标数据输出到输出窗口
+    QPoint *temPoint=new QPoint;
+    QString *temStr=new QString;
+    for(int i=0;i<algoPTPCM->algorithmExport().size();i++)
+    {
+        *temPoint=algoPTPCM->algorithmExport().at(i);
+        *temStr = QString("QPoint: (%1,%2)").arg(temPoint->rx()).arg(temPoint->ry());
+//        temStr=temPoint->rx().toString
+        textOutput->append(*temStr);
+    };
+    textOutput->append("坐标运动轨迹，输出结束！");
 }
 void MainWindow::Setting()
 {
@@ -614,6 +659,59 @@ void MainWindow::Setting()
     connect(settingWindow,SIGNAL(outTextChanged(QString)),this,SLOT(outAllDisplay(QString)));
     settingWindow->setWindowModality(Qt::ApplicationModal);//设置当前窗口为模态对话框
     settingWindow->show();
+}
+
+void MainWindow::setConfi(QString strFileAddressAndName, QString SectionName, QString keyName, QString keyValue)
+{
+    //    QString aFile = QDir::currentPath() + "/zygapp.db";
+
+        if(isFileExist(strFileAddressAndName))//文件存在
+        {
+
+            QSettings *settings = new QSettings(strFileAddressAndName,QSettings::IniFormat);//实例化，前面的参数是填写的配置文件的路径 ,后面的是让QSetting 用 ini的格式进行读写
+            settings->setIniCodec("UTF-8");
+            settings->setValue( SectionName+"/"+keyName,keyValue);//将内容写入ini文件中
+            delete settings;
+            outAllDisplay("MainWindow::setConfi函数： 参数向文件写入 完成！");
+        }
+        else
+        {
+            outAllDisplay("MainWindow::setConfi函数： 参数向文件写入 失败！");
+        };
+}
+
+QString MainWindow::getConfi(QString strFileAddressAndName, QString SectionName, QString keyName)
+{
+    if(isFileExist(strFileAddressAndName))
+    {
+        QSettings *settings = new QSettings(strFileAddressAndName,QSettings::IniFormat);//调用QSettings操作ini文件
+        QString keyValue = settings->value(SectionName+"/"+keyName).toString();//按照对应的节名和键名，读出ini文件中保存的内容，默认为空
+        delete settings;
+        outAllDisplay("MainWindow::getConfi函数： 参数从文件读取完成！");
+        return keyValue;
+    }
+    else
+    {
+        outAllDisplay("MainWindow::getConfi函数： 参数从文件读取 失败！");
+        return NULL;
+    };
+}
+
+bool MainWindow::isFileExist(QString strFileAddress)
+{
+    QString driveNum = strFileAddress.at(1);//得到完整地址的第二个字符，用于判断是否是:字符，因此知道是否输入的是完整地址
+    bool fileExist=false;
+    if(driveNum==":")//判断地址是否是完整地址
+    {
+        QDir *coordinateFolder = new QDir;
+        fileExist = coordinateFolder->exists(strFileAddress);//查看文件是否存在
+        return fileExist;
+    }
+    else
+    {
+        outAllDisplay(strFileAddress+"：不是完整的地址，请输入完整地址，如 \"C://Users//Administrator//Desktop//CONFIG.ini\" ");
+        return fileExist;
+    };
 }
 void MainWindow::CloseSystem()
 {

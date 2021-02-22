@@ -84,8 +84,7 @@ void SettingMainWindow::btnOKFun()
 
 void SettingMainWindow::btnCanaleFun()
 {
-
-    QMessageBox::warning(this,tr("setConfi"),tr("btnOKFun执行结束"));
+//    QMessageBox::warning(this,tr("setConfi"),tr("btnOKFun执行结束"));
     this->close();
 }
 

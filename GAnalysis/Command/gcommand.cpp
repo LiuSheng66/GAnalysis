@@ -4,7 +4,7 @@
 #include<Command/mycommandrules.h>
 GCommand::GCommand()
 {
-
+    cmdFinal.resize(0);//初始化空间大小为0，清除可能存在的数据
 }
 
 GCommand::GCommand(CodeEditor &inputPlainText)
@@ -33,7 +33,15 @@ GCommand::~GCommand()
 
 }
 
+QVector<CommandStatus *> GCommand::commandExport()
+{
+    return cmdFinal;
+}
 
+void GCommand::commandFrame(GCommand *begin)
+{
+    begin->commandEntry();
+}
 
  void GCommand::setInCommandText(CodeEditor &inputPlainText)
  {

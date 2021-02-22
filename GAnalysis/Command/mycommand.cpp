@@ -6,9 +6,9 @@
 MyCommand::MyCommand(CodeEditor &inputPlainText)
 {
     numCmdRow=1;//默认从第一行开始解析
-    setInCommandText(inputPlainText);
-    implementCommand();
-    qDebug()<<"cmdFinal.size() :"<<cmdFinal.size();
+    cmdFinal.resize(0);//每次开始指令解析之前先把空间大小初始化为0，清除之前可能存在的数据
+    abnormalCauseStr="";//异常原因初始化
+    setInCommandText(inputPlainText);//从G代码编辑窗口初始化得到指令文本，指令文本要么从文件打开呈现在编辑框，要么自己手动在编辑框输入
 }
 
 MyCommand::~MyCommand()
@@ -16,8 +16,17 @@ MyCommand::~MyCommand()
 
 }
 
-void MyCommand::implementCommand()
-{
+void MyCommand::commandEntry()
+{ 
+    isAnalysisFinish=false;//默认开始的时候没有完成指令解析
+    abnormalCauseStr="";//异常原因初始化
+    if(commandPlainText->toPlainText().isEmpty())
+    {
+        QMessageBox::critical(NULL,QObject::tr("MyCommand/implementCommand()" ),QObject::tr( "没有指令输入! 请检查指令输入是否存在问题"));
+        abnormalCauseStr="MyCommand/implementCommand():没有指令输入! 请检查指令输入是否存在问题";
+        return;
+    }
+
     QStringList strList=splitBySentence(commandStrTotal);//把整篇G代码按行裁成一段一段指令
     for(int i=0;i < strList.size();i++)
     {
@@ -25,6 +34,15 @@ void MyCommand::implementCommand()
          cmdFinal.push_back(createCmdByParagraph(strList[i]));//得到最后处理好的
     }
 //    QMessageBox::information(NULL,QObject::tr("implementCommand" ),QObject::tr( "strList 结束"));
+
+    qDebug()<<"指令解析完成！";
+    qDebug()<<"cmdFinal.size() :"<<cmdFinal.size();
+    isAnalysisFinish=true;//指令解析完成标志
+}
+
+QVector<CommandStatus *> MyCommand::commandExport()
+{
+    return cmdFinal;
 }
 
 bool MyCommand::isCorrectCMD(QString paragraphCmd)
@@ -40,8 +58,8 @@ CommandStatus* MyCommand::createCmdByParagraph(QString sentence){
     CommandStatus *myCmds=new CommandStatus();
     if(sentence.isEmpty())
     {
-        QMessageBox::critical(NULL,QObject::tr("段落指令解析" ),QObject::tr( "初步识别指令为空! 请检查指令输入是否存在问题"));
-//        return ;
+        QMessageBox::critical(NULL,QObject::tr("MyCommand/createCmdByParagraph()" ),QObject::tr( "存在一行指令为空! 请检查指令是否存在问题"));
+        return NULL;
     }
 
     //每一行进行预处理,两头去空格
@@ -275,6 +293,19 @@ CommandStatus* MyCommand::createCmdByParagraph(QString sentence){
              cmdStatus.point.j=coordinateStrToDouble(cmdStrList[i]);
           };
       }
+  }
+
+  QString MyCommand::isCmdAnalysisFinish()
+  {
+      QString str;
+      if(isAnalysisFinish==true)//解析完成
+      {
+          return str="指令解析正常完成";
+      }else
+      {
+         return abnormalCauseStr;//返回异常原因
+      }
+
   }
 
 

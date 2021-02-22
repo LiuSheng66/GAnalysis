@@ -10,8 +10,8 @@ StraightLinePTPCM::StraightLinePTPCM():
 {
     AllCoordinate_array.resize(0);//每一个指令的实时坐标初始化为0
 
-     beginPoint=QPoint(0,0);
-     endPoint=QPoint(100,100);
+//     beginPoint=QPoint(0,0);
+//     endPoint=QPoint(100,100);
 
     Step=0;//初始化
 }
@@ -66,12 +66,12 @@ StraightLinePTPCM::~StraightLinePTPCM()
          Ac_X=Ac_X+nowBias.rx();
          Ac_Y=Ac_Y+nowBias.ry();
      }
-     qDebug()<<"总共步数："<<Step;
-     qDebug()<<"成功使用直线的逐点比较法,并输出临时的坐标数据：";
-     for(int i=0;i<AllCoordinate_array.size();i++)
-     {
-         qDebug()<<"第 "<<i+1<<" 步："<<AllCoordinate_array.at(i);
-     };
+     qDebug()<<"算法执行结束！总共步数："<<Step;
+//     qDebug()<<"成功使用直线的逐点比较法,并输出临时的坐标数据：";
+//     for(int i=0;i<AllCoordinate_array.size();i++)
+//     {
+//         qDebug()<<"第 "<<i+1<<" 步："<<AllCoordinate_array.at(i);
+//     };
  }
 
  QVector<QPoint> StraightLinePTPCM::algorithmExport()
