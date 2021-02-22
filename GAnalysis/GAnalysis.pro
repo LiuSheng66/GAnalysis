@@ -24,8 +24,7 @@ SOURCES += \
     Command/mycommandrules.cpp \
     CoordinateSystem/coordinatesystem.cpp \
     Drawing/paintarea.cpp \
-    GDebug/gdebug.cpp \
-    configure/appconfigure.cpp \
+    Global/global.cpp \
     main.cpp \
     mainwindow.cpp \
     GeometricFigure/geometricfigure.cpp \
@@ -44,8 +43,7 @@ HEADERS += \
     Command/mycommandrules.h \
     CoordinateSystem/coordinatesystem.h \
     Drawing/paintarea.h \
-    GDebug/gdebug.h \
-    configure/appconfigure.h \
+    Global/global.h \
     mainwindow.h \
     GeometricFigure/geometricfigure.h \
     setting/algorithmWindow/algorithmset.h \

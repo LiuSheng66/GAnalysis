@@ -6,6 +6,7 @@
 #include<QVBoxLayout>
 #include"setting/algorithmWindow/algorithmset.h"
 #include"setting/textEdit/texteditset.h"
+#include"Global/global.h"
 namespace Ui {
 class SettingMainWindow;
 }
@@ -28,14 +29,10 @@ public:
 private:
     Ui::SettingMainWindow *ui;
 signals:
-    void outTextChanged(QString str);//自定义信号，输出栏内容改变信号，str代表需要显示的输出内容
+//    void outTextChanged(QString str);//自定义信号，输出栏内容改变信号，str代表需要显示的输出内容
 
 
 public:
-    void setConfi(QString strFileAddressAndName ,QString SectionName,QString keyName,QString keyValue="0");//设置ini文件的参数
-    QString getConfi(QString strFileAddressAndName ,QString SectionName,QString keyName);
-    bool isFileExist(QString strFileAddress);
-
     void setTabMainTitle(QString str);//设置每一个功能界面的总标题
 
     QMainWindow* connectItemToWidget(QListWidgetItem *ItemList);//把每一个ListItem跟相应需要显示Widget绑定

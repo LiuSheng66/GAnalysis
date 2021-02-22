@@ -59,10 +59,10 @@ void algorithmSet::onButtonClicked(QAbstractButton *button)
     if(button==radioBtn_ZhuDian)
     {
 
-    setConfi("C://Users//Administrator//Desktop//homework//CONFIG.ini","algorithmSet","fireMode","ZhuDian");
+    setConfi("algorithmSet","algorithmWay","ZhuDian");
     };
     if(button==radioBtn_DDA)
     {
-    setConfi("C://Users//Administrator//Desktop//homework//CONFIG.ini","algorithmSet","fireMode","DDA");
+    setConfi("algorithmSet","algorithmWay","DDA");
     };
 }

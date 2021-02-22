@@ -7,7 +7,7 @@ MyCommand::MyCommand(CodeEditor &inputPlainText)
 {
     numCmdRow=1;//默认从第一行开始解析
     cmdFinal.resize(0);//每次开始指令解析之前先把空间大小初始化为0，清除之前可能存在的数据
-    abnormalCauseStr="";//异常原因初始化
+
     setInCommandText(inputPlainText);//从G代码编辑窗口初始化得到指令文本，指令文本要么从文件打开呈现在编辑框，要么自己手动在编辑框输入
 }
 
@@ -18,12 +18,11 @@ MyCommand::~MyCommand()
 
 void MyCommand::commandEntry()
 { 
-    isAnalysisFinish=false;//默认开始的时候没有完成指令解析
-    abnormalCauseStr="";//异常原因初始化
+    outMessageDisplay("指令解析 ————> 开始");
     if(commandPlainText->toPlainText().isEmpty())
     {
-        QMessageBox::critical(NULL,QObject::tr("MyCommand/implementCommand()" ),QObject::tr( "没有指令输入! 请检查指令输入是否存在问题"));
-        abnormalCauseStr="MyCommand/implementCommand():没有指令输入! 请检查指令输入是否存在问题";
+//        QMessageBox::critical(NULL,QObject::tr("MyCommand/implementCommand()" ),QObject::tr( "没有指令输入! 请检查指令输入是否存在问题"));
+        outMessageDisplay("MyCommand/implementCommand():没有指令输入! 请检查指令输入是否存在问题");
         return;
     }
 
@@ -35,9 +34,9 @@ void MyCommand::commandEntry()
     }
 //    QMessageBox::information(NULL,QObject::tr("implementCommand" ),QObject::tr( "strList 结束"));
 
-    qDebug()<<"指令解析完成！";
-    qDebug()<<"cmdFinal.size() :"<<cmdFinal.size();
-    isAnalysisFinish=true;//指令解析完成标志
+    outMessageDisplay("指令解析 ————> 结束！");
+    QString temStr=QString::number(cmdFinal.size());
+    outMessageDisplay("指令容器的大小："+temStr);
 }
 
 QVector<CommandStatus *> MyCommand::commandExport()
@@ -58,7 +57,7 @@ CommandStatus* MyCommand::createCmdByParagraph(QString sentence){
     CommandStatus *myCmds=new CommandStatus();
     if(sentence.isEmpty())
     {
-        QMessageBox::critical(NULL,QObject::tr("MyCommand/createCmdByParagraph()" ),QObject::tr( "存在一行指令为空! 请检查指令是否存在问题"));
+        outMessageDisplay("MyCommand/createCmdByParagraph():指令解析中发现存在一行指令为空! 请检查指令是否存在问题");
         return NULL;
     }
 
@@ -145,24 +144,34 @@ CommandStatus* MyCommand::createCmdByParagraph(QString sentence){
        }
         case FIRE_BEGIN_CODE:{
         myCmds->isNeedFire=true;
+        QString temStr="MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：FIRE_BEGIN_CODE";
+        outMessageDisplay(temStr);
             break;
        }
         case FIRE_CLOSE_CODE:{
         myCmds->isNeedFire=false;
 //        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——检测到：FIRE_CLOSE_CODE");
+        QString temStr="MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：FIRE_CLOSE_CODE";
+        outMessageDisplay(temStr);
             break;
         }
         case FIRE_END_CODE:{
-        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——检测到：FIRE_END_CODE");
+//        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——检测到：FIRE_END_CODE");
+        QString temStr="MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：FIRE_END_CODE";
+        outMessageDisplay(temStr);
             break;
        }
         case NO_USE_CODE:{
         myCmds->isCorrect=false;
-        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——检测到：NO_USE_CODE");
+//        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——检测到：NO_USE_CODE");
+        QString temStr="MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：NO_USE_CODE";
+        outMessageDisplay(temStr);
             break;
        }
         default:{
-        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——未检测到：Cmd-default");
+//        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——未检测到：Cmd-default");
+        QString temStr="MyCommand/implementCommand:"+numCmdRowStr+" 行——未检测到：Cmd-default";
+        outMessageDisplay(temStr);
            break;
        }
     };
@@ -295,18 +304,7 @@ CommandStatus* MyCommand::createCmdByParagraph(QString sentence){
       }
   }
 
-  QString MyCommand::isCmdAnalysisFinish()
-  {
-      QString str;
-      if(isAnalysisFinish==true)//解析完成
-      {
-          return str="指令解析正常完成";
-      }else
-      {
-         return abnormalCauseStr;//返回异常原因
-      }
 
-  }
 
 
 

@@ -35,11 +35,8 @@ StraightLinePTPCM::~StraightLinePTPCM()
 
  void StraightLinePTPCM::algorithmEntry()
 {
-
-     QString strLine = QString("得到的输入坐标信息：%1 %2 %3 %4 ").arg(beginPoint.rx()).arg(beginPoint.ry()).arg(endPoint.rx()).arg(endPoint.ry());
-     qDebug()<<strLine;
-
-
+     QString strLine = QString("得到起始点坐标信息:(%1 ,%2) -> (%3 ,%4)").arg(beginPoint.rx()).arg(beginPoint.ry()).arg(endPoint.rx()).arg(endPoint.ry());
+     outMessageDisplay( strLine);
      //坐标平移，把起点移到从原点开始,nowBias包含了平移的xy值，
      QPointF nowBias=Algorithm::OtherToOriginalPoint(beginPoint);
      //实时坐标初始化

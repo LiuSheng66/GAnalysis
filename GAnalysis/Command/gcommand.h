@@ -4,6 +4,7 @@
 #include<QTextDocument>
 #include<syntax/codeeditor.h>
 #include"Command/mycommandrules.h"
+#include"Global/global.h"
 
 
 

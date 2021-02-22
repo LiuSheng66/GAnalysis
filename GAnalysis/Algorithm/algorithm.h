@@ -2,6 +2,7 @@
 #define ALGORITHM_H
 #include<QPoint>
 #include<QVector>
+#include"Global/global.h"
 
 //算法计算的基本单位为步进电机的步数，为int型，而实际的坐标系统为double型
 //本程序算法全是以脉冲数为单位计算

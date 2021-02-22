@@ -6,12 +6,12 @@
 #include<QButtonGroup>
 #include<QRadioButton>
 #include<QPushButton>
-#include "configure/appconfigure.h"
+#include"Global/global.h"
 namespace Ui {
 class algorithmSet;
 }
 
-class algorithmSet : public QMainWindow,public AppConfigure
+class algorithmSet : public QMainWindow
 {
     Q_OBJECT
 
@@ -32,6 +32,7 @@ private:
     QPushButton *resetBtn;//算法的默认设置按钮
 private:
     Ui::algorithmSet *ui;
+    QString addressStr="C://Users//Administrator//Desktop//homework//CONFIG.ini";
 };
 
 #endif // ALGORITHMSET_H

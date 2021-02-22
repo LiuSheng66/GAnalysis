@@ -21,10 +21,9 @@ public:
     cmdNeedPara isNeedParameter(const CodeType &cmd);//指令是否需要坐标参数配合使用
     void cmdConvertPoint(CommandStatus &cmdStatus,QStringList cmdStrList);
 
-    QString isCmdAnalysisFinish();
 
 public:
-    QString abnormalCauseStr;//指令解析系统最后异常而没有正常结束的原因
+
 
 protected:
     CommandStatus* createCmdByParagraph(QString sentence);//把一段指令解析成一个结构体
@@ -32,7 +31,6 @@ protected:
 
 
 private:
-    bool isAnalysisFinish;//指令解析是否完成的标志
 
     int numCmdRow;//G代码的行号，用于报错时精准确定
 };
