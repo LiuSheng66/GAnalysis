@@ -100,7 +100,6 @@ private:
     void SaveFile();
     void SaveAsFile();
     void CloseFile();
-
     void CloseSystem();
 
     void TestFun();
@@ -109,12 +108,14 @@ private:
     void onlyAnalysis();
 
     void Setting();
-
+public:
     void removeAllDock();
     void showDock(const QList<int>& index = QList<int>());
     void setTextColor(QTextEdit *textEdit,QColor *color);//设置文字编辑框的文字颜色
 
     void ConvertShowOrHide(QWidget *widget);//对输入的窗口，进行切换窗口的显示或隐藏
+    void AlgoRunByCmd(QVector<CommandStatus*> temCmdTotal);//把解析后的指令和计算算法联系上，并按照指令计算
+
 public slots:
     //槽函数
     void mouseMovePoint();//自定义槽函数，根据画布空间的鼠标移动提供槽函数支持

@@ -18,25 +18,22 @@ MyCommand::~MyCommand()
 
 void MyCommand::commandEntry()
 { 
-    outMessageDisplay("指令解析 ————> 开始");
     if(commandPlainText->toPlainText().isEmpty())
     {
-//        QMessageBox::critical(NULL,QObject::tr("MyCommand/implementCommand()" ),QObject::tr( "没有指令输入! 请检查指令输入是否存在问题"));
-        outMessageDisplay("MyCommand/implementCommand():没有指令输入! 请检查指令输入是否存在问题");
+        OutPutMsgToConsle(Critical_INFO ,"MyCommand/implementCommand():没有指令输入! 请检查指令输入是否存在问题");
         return;
     }
-
+    OutPutMsgToConsle(Running_INFO,"指令解析 ————> 开始");
     QStringList strList=splitBySentence(commandStrTotal);//把整篇G代码按行裁成一段一段指令
     for(int i=0;i < strList.size();i++)
     {
 //        qDebug()<<"strList-"<<i<<":"<<strList[i];
          cmdFinal.push_back(createCmdByParagraph(strList[i]));//得到最后处理好的
     }
-//    QMessageBox::information(NULL,QObject::tr("implementCommand" ),QObject::tr( "strList 结束"));
 
-    outMessageDisplay("指令解析 ————> 结束！");
+    OutPutMsgToConsle(Running_INFO,"指令解析 ————> 结束！");
     QString temStr=QString::number(cmdFinal.size());
-    outMessageDisplay("指令容器的大小："+temStr);
+    OutPutMsgToConsle(Information_INFO,"指令容器的大小："+temStr);
 }
 
 QVector<CommandStatus *> MyCommand::commandExport()
@@ -57,7 +54,7 @@ CommandStatus* MyCommand::createCmdByParagraph(QString sentence){
     CommandStatus *myCmds=new CommandStatus();
     if(sentence.isEmpty())
     {
-        outMessageDisplay("MyCommand/createCmdByParagraph():指令解析中发现存在一行指令为空! 请检查指令是否存在问题");
+        OutPutMsgToConsle(Critical_INFO,"MyCommand/createCmdByParagraph():指令解析中发现存在一行指令为空! 请检查指令是否存在问题");
         return NULL;
     }
 
@@ -126,52 +123,46 @@ CommandStatus* MyCommand::createCmdByParagraph(QString sentence){
        }
         case STR_LINE_WORK_CODE:{
         myCmds->isNeedCoordinate=true;
+        myCmds->isNeedFire=true;
         myCmds->line=STR_LINE;
         cmdConvertPoint(*myCmds, singleCommandList);
             break;
        }
         case CW_ARC_WORK_CODE:{
         myCmds->isNeedCoordinate=true;
+        myCmds->isNeedFire=true;
         myCmds->line=ARC_LINE;
         cmdConvertPoint(*myCmds, singleCommandList);
             break;
        }
         case ACW_ARC_WORK_CODE:{
         myCmds->isNeedCoordinate=true;
+        myCmds->isNeedFire=true;
         myCmds->line=ARC_LINE;
         cmdConvertPoint(*myCmds, singleCommandList);
             break;
        }
         case FIRE_BEGIN_CODE:{
-        myCmds->isNeedFire=true;
-        QString temStr="MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：FIRE_BEGIN_CODE";
-        outMessageDisplay(temStr);
+//        myCmds->isNeedFire=true;
+        OutPutMsgToConsle(Running_INFO,"MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：FIRE_BEGIN_CODE");
             break;
        }
         case FIRE_CLOSE_CODE:{
-        myCmds->isNeedFire=false;
-//        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——检测到：FIRE_CLOSE_CODE");
-        QString temStr="MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：FIRE_CLOSE_CODE";
-        outMessageDisplay(temStr);
+//        myCmds->isNeedFire=false;
+        OutPutMsgToConsle(Running_INFO,"MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：FIRE_CLOSE_CODE");
             break;
         }
         case FIRE_END_CODE:{
-//        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——检测到：FIRE_END_CODE");
-        QString temStr="MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：FIRE_END_CODE";
-        outMessageDisplay(temStr);
+        OutPutMsgToConsle(Running_INFO,"MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：FIRE_END_CODE");
             break;
        }
         case NO_USE_CODE:{
         myCmds->isCorrect=false;
-//        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——检测到：NO_USE_CODE");
-        QString temStr="MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：NO_USE_CODE";
-        outMessageDisplay(temStr);
+        OutPutMsgToConsle(Running_INFO,"MyCommand/implementCommand:"+numCmdRowStr+" 行——检测到：NO_USE_CODE");
             break;
        }
         default:{
-//        QMessageBox::information(NULL,QObject::tr("MyCommand/implementCommand" ),"第 "+numCmdRowStr+" 行——未检测到：Cmd-default");
-        QString temStr="MyCommand/implementCommand:"+numCmdRowStr+" 行——未检测到：Cmd-default";
-        outMessageDisplay(temStr);
+        OutPutMsgToConsle(Warning_INFO,"MyCommand/implementCommand:"+numCmdRowStr+" 行——未检测到：Cmd-default");
            break;
        }
     };
@@ -287,19 +278,19 @@ CommandStatus* MyCommand::createCmdByParagraph(QString sentence){
       {
           if(cmdStrList[i].at(0)=="X")
           {
-             cmdStatus.point.x=coordinateStrToDouble(cmdStrList[i]);
+             cmdStatus.point.x=coordinateStrToInt(cmdStrList[i]);
           };
           if(cmdStrList[i].at(0)=="Y")
           {
-             cmdStatus.point.y=coordinateStrToDouble(cmdStrList[i]);
+             cmdStatus.point.y=coordinateStrToInt(cmdStrList[i]);
           };
           if(cmdStrList[i].at(0)=="I")
           {
-             cmdStatus.point.i=coordinateStrToDouble(cmdStrList[i]);
+             cmdStatus.point.i=coordinateStrToInt(cmdStrList[i]);
           };
           if(cmdStrList[i].at(0)=="J")
           {
-             cmdStatus.point.j=coordinateStrToDouble(cmdStrList[i]);
+             cmdStatus.point.j=coordinateStrToInt(cmdStrList[i]);
           };
       }
   }

@@ -80,10 +80,10 @@ public:
     gPoint();
     ~gPoint();
 public:
-    double x;
-    double y;
-    double i;
-    double j;
+    int x;
+    int y;
+    int i;
+    int j;
 };
 
 //指令结构体：储存指令代表的信息

@@ -13,11 +13,11 @@ Algorithm::~Algorithm()
 
 QVector<QPoint> Algorithm::algorithmExport()
 {
-    AllCoordinate_array.resize(0);
-    return AllCoordinate_array;
+    transitionCoordinate.resize(0);
+    return transitionCoordinate;
 }
 
-void Algorithm::algorithmBengin(Algorithm *begin)
+void Algorithm::algorithmFrame(Algorithm *begin)
 {
     begin->algorithmEntry();
 }
@@ -26,6 +26,17 @@ void Algorithm::setInitPoint(QPoint begin, QPoint end)
 {
     beginPoint=begin;
     endPoint=end;
+}
+
+void Algorithm::testAlgorithmExport(QVector<QPoint> temCoordinate)
+{
+    //把临时坐标数据输出到输出窗口
+    QPoint *temPoint=new QPoint;
+    for(int i=0;i<temCoordinate.size();i++)
+    {
+        *temPoint=temCoordinate.at(i);
+        OutPutMsgToConsle(Information_INFO,QString("QPoint: (%1,%2)").arg(temPoint->rx()).arg(temPoint->ry()));
+    };
 }
 
 QPoint Algorithm::OtherToOriginalPoint(QPoint &point)//double Point_X,double Point_Y
@@ -64,3 +75,4 @@ int Algorithm::GetQuadrantJudge( double Point_X , double Point_Y)
          return 9; //原点
 
  }
+

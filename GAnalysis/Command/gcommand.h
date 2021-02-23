@@ -18,7 +18,7 @@ public:
 
     virtual void commandEntry()=0;//指令解析的入口
     virtual QVector<CommandStatus*> commandExport();//指令解析的输出
-    void commandFrame(GCommand *begin);//指令解析的框架
+    GCommand * commandFrame(GCommand *begin);//指令解析的框架
 
     void setInCommandText(CodeEditor &inputPlainText);
 
@@ -30,7 +30,7 @@ public:
     QStringList splitBySentence(const QString &inText);
     QStringList splitByWord(QString &inText);
     bool PreProcces(QString &textEdit); //预处理,小写改大写，前后文的空格删除
-    double coordinateStrToDouble(const QString coordinate);//把指令中的字符类的坐标数据转化为double型的数字,精度6位有效数字XXXX.XX
+    int coordinateStrToInt(const QString coordinate);//把指令中的字符类的坐标数据转化为int型的步进电机的步数数字
 protected:
 
     CodeEditor *commandPlainText;//导入需要处理指令

@@ -22,7 +22,6 @@ SOURCES += \
     Command/gcommand.cpp \
     Command/mycommand.cpp \
     Command/mycommandrules.cpp \
-    CoordinateSystem/coordinatesystem.cpp \
     Drawing/paintarea.cpp \
     Global/global.cpp \
     main.cpp \
@@ -41,7 +40,6 @@ HEADERS += \
     Command/gcommand.h \
     Command/mycommand.h \
     Command/mycommandrules.h \
-    CoordinateSystem/coordinatesystem.h \
     Drawing/paintarea.h \
     Global/global.h \
     mainwindow.h \

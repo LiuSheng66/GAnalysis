@@ -11,13 +11,14 @@
 #include<QTextCodec>
 #include<QColorDialog>
 #include<QDateTime>
+#include<QPainter>
 #include<syntax/myhighlighter.h>
 #include<syntax/codeeditor.h>
 #include<Command/mycommand.h>
 #include"setting/settingmainwindow.h"
 #include"Algorithm/ptpcm/straightlineptpcm.h"
 #include"Global/global.h"
-
+#include<QVector>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -608,70 +609,50 @@ void MainWindow::beginAnalysis()
 }
 void MainWindow::onlyAnalysis()
 {
+//    exportMessage->setTextColor(QColor(211, 211 ,211));
+//    QString  qstrText("<font color=\"#D3D3D3\">BLUE<\font>");
+//    exportMessage->setText(qstrText);
+    OutdatedMsgToConsle();//把之前可能存在的消息，置于灰色代表是上一次的过时消息
+
     //第一步，输入指令得到解析的指令
     GCommand *baseCommand=NULL;//抽象类，指令解析基类
     MyCommand *mycommand=new MyCommand(*gEditWidget);//初始化指令文本输入
     //判断读取到的指令系统
     if(getConfi("CommandSystem","GCommand")=="MyCommand")
     {
-        outMessageDisplay("MainWindow::onlyAnalysis()： 读取到的指令解析系统为 MyCommand");
-        baseCommand->commandFrame(mycommand);//执行指令解析
+        OutPutMsgToConsle(Warning_INFO,"MainWindow::onlyAnalysis(): 读取到的指令解析系统为 MyCommand");
         //第二步，按照解析后的指令，通过匹配算法进行计算
-        mycommand->commandExport();
+//        mycommand->commandExport();
         if(getConfi("algorithmSet","algorithmWay")=="ZhuDian")//但是逐点比较法时
         {
-            outMessageDisplay("读取到当前执行算法为:逐点比较法");
-//***********************************************当前继续工作**//////////////////////////////////////////////
-
-
-
-
-
-
-            //需要把解析出来的指令和实际算法结合起来
-
-
-
-
-
-
-
-//***********************************************当前继续工作**//////////////////////////////////////////////
+            OutPutMsgToConsle(Warning_INFO,"读取到当前执行算法为:逐点比较法");
+            AlgoRunByCmd(baseCommand->commandFrame(mycommand)->commandExport());//先按照输入的文本指令得到解析后的指令，再按照指令执行算法计算，得到总的轨迹坐标
+            OutPutMsgToConsle(Running_INFO,"按照指令和算法计算总坐标，结束！");
 
         }
         else if(getConfi("algorithmSet","algorithmWay")=="DDA")//但是逐点比较法时
         {
-            outMessageDisplay("读取到当前执行算法为:DDA(数字积分法)，但由于尚未添加相关算法，暂不执行，结束");
+            OutPutMsgToConsle(Warning_INFO,"读取到当前执行算法为:DDA(数字积分法)，但由于尚未添加相关算法，暂不执行，结束");
             return;
         };
     }
     else
     {
-        outMessageDisplay("MainWindow::onlyAnalysis()： 没有读取到具体的指令解析系统，程序终止！");
+        OutPutMsgToConsle(Critical_INFO,"MainWindow::onlyAnalysis(): 没有读取到具体的指令解析系统，程序终止！");
         return;//没有读取到指令系统则直接结束整体所有工作
     };
 
 
     //第三步，根据算法计算后的坐标轨迹进行输出（绘画，坐标输出，文件输出）
 
-    StraightLinePTPCM *algoPTPCM=new StraightLinePTPCM();
-    Algorithm *base=NULL;
-    //起点和终点坐标输入，后期需要由指令得到
-    algoPTPCM->setInitPoint(QPoint(0,0), QPoint(15,10));
+//    StraightLinePTPCM *algoPTPCM=new StraightLinePTPCM();
+//    Algorithm *base=NULL;
+//    //起点和终点坐标输入，后期需要由指令得到
+//    algoPTPCM->setInitPoint(QPoint(0,0), QPoint(15,10));
 
-    base->algorithmBengin(algoPTPCM);//此处根据传入的算法对象不同，实现不同的算法，多态发生
+//    base->algorithmBengin(algoPTPCM);//此处根据传入的算法对象不同，实现不同的算法，多态发生
+//    base->testAlgorithmExport(algoPTPCM);    //测试，把临时坐标数据输出到输出窗口
 
-    //把临时坐标数据输出到输出窗口
-    QPoint *temPoint=new QPoint;
-    QString *temStr=new QString;
-    for(int i=0;i<algoPTPCM->algorithmExport().size();i++)
-    {
-        *temPoint=algoPTPCM->algorithmExport().at(i);
-        *temStr = QString("QPoint: (%1,%2)").arg(temPoint->rx()).arg(temPoint->ry());
-        outMessageDisplay(*temStr);
-    };
-
-    outMessageDisplay("坐标运动轨迹，输出结束！");
 }
 void MainWindow::Setting()
 {
@@ -721,3 +702,33 @@ void MainWindow::ConvertShowOrHide(QWidget *widget)
         widget->show();
     }
 }
+
+void MainWindow::AlgoRunByCmd(QVector<CommandStatus *> temCmdTotal)
+{
+    AllCoordinate_array.resize(0);//每次需要计算一整份指令文本，需要提前把轨迹坐标总容器置0，排除前一轮计算的结果干扰
+    StraightLinePTPCM *algoPTPCM=new StraightLinePTPCM();
+    Algorithm *base=NULL;
+    for (int i=0;i<temCmdTotal.size();i++) {
+        if(temCmdTotal.at(i)->isNeedFire)//当前行的指令是否需要切割工作
+        {
+            OutPutMsgToConsle(Running_INFO,"当前需要切割的行号i: "+QString::number(i+1));
+            if(temCmdTotal.at(i)->line==STR_LINE)//当时直线时
+            {
+                algoPTPCM->setInitPoint(QPoint(0,0),QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y));
+                base->algorithmFrame(algoPTPCM);//此处根据传入的算法对象不同，实现不同的算法，多态发生
+
+                AllCoordinate_array<<algoPTPCM->algorithmExport();//把当前线段的临时坐标添加到中的坐标容器里
+                OutPutMsgToConsle(Running_INFO,"坐标总容器的大小: "+QString::number(AllCoordinate_array.size()));
+//                base->testAlgorithmExport(algoPTPCM->algorithmExport());//输出当前的临时坐标
+            }
+            else if(temCmdTotal.at(i)->line==ARC_LINE)//当时圆弧时
+            {
+                OutPutMsgToConsle(Information_INFO,"还未实现圆弧算法");
+            };
+        };
+    }
+
+}
+
+
+

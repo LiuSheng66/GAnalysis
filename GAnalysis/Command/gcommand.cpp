@@ -38,9 +38,10 @@ QVector<CommandStatus *> GCommand::commandExport()
     return cmdFinal;
 }
 
-void GCommand::commandFrame(GCommand *begin)
+GCommand * GCommand::commandFrame(GCommand *begin)
 {
     begin->commandEntry();
+    return begin;
 }
 
  void GCommand::setInCommandText(CodeEditor &inputPlainText)
@@ -111,10 +112,10 @@ void GCommand::commandFrame(GCommand *begin)
          return false;
  }
 
- //把如X10.02等字符串处理为坐标数据
- double GCommand::coordinateStrToDouble(const QString  coordinate)
+ //把如X10.02等字符串处理为步进电机的步数
+ int GCommand::coordinateStrToInt(const QString  coordinate)
  {
-     double mycoordinate=0;//返回的数字坐标
+     int coordinateResult=0;//返回的数字坐标
      QString str=coordinate;
      if(!str.isEmpty())
      {
@@ -123,17 +124,16 @@ void GCommand::commandFrame(GCommand *begin)
          if(str.at(0)=="X"||str.at(0)=="Y"||str.at(0)=="I"||str.at(0)=="J")
          {
              str=str.remove(0,1);//去除坐标的第一个字母，如X10.0->10.0
-             mycoordinate=str.toDouble();
-
+             coordinateResult=distanceToPulses(str.toDouble());
          }
          else
          {
-             QMessageBox::critical(nullptr, "函数coordinateStrToDouble","分离提取坐标参数失败，如X10.01，没有得到首字母X、Y、I、J");
+             OutPutMsgToConsle(Critical_INFO,"函数coordinateStrToInt:分离提取坐标参数失败，如X10.01，没有得到首字母X、Y、I、J");
          };
      }
      else
      {
-         QMessageBox::critical(nullptr, "函数coordinateStrToDouble","分离提取坐标参数失败，如X10.01，提取字符为空");
+         OutPutMsgToConsle(Critical_INFO,"函数coordinateStrToInt:分离提取坐标参数失败，如X10.01，提取字符为空");
      }
-     return mycoordinate;
+     return coordinateResult;
  }

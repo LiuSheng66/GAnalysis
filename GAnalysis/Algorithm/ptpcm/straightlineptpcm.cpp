@@ -8,7 +8,7 @@ StraightLinePTPCM::StraightLinePTPCM():
     Ac_Y(0),
     Line_Result(0)
 {
-    AllCoordinate_array.resize(0);//每一个指令的实时坐标初始化为0
+    transitionCoordinate.resize(0);//每一个指令的实时坐标初始化为0
 
 //     beginPoint=QPoint(0,0);
 //     endPoint=QPoint(100,100);
@@ -21,7 +21,7 @@ StraightLinePTPCM::StraightLinePTPCM(QPoint begin,QPoint end):
     Ac_Y(0),
     Line_Result(0)
 {
-    AllCoordinate_array.resize(0);//每一个指令的实时坐标初始化为0
+    transitionCoordinate.resize(0);//每一个指令的实时坐标初始化为0
 
      beginPoint=begin;
      endPoint=end;
@@ -35,8 +35,9 @@ StraightLinePTPCM::~StraightLinePTPCM()
 
  void StraightLinePTPCM::algorithmEntry()
 {
+     Step=0;//每次使用
      QString strLine = QString("得到起始点坐标信息:(%1 ,%2) -> (%3 ,%4)").arg(beginPoint.rx()).arg(beginPoint.ry()).arg(endPoint.rx()).arg(endPoint.ry());
-     outMessageDisplay( strLine);
+     OutPutMsgToConsle(Running_INFO,"开始连续切削算法，"+strLine);
      //坐标平移，把起点移到从原点开始,nowBias包含了平移的xy值，
      QPointF nowBias=Algorithm::OtherToOriginalPoint(beginPoint);
      //实时坐标初始化
@@ -58,22 +59,18 @@ StraightLinePTPCM::~StraightLinePTPCM()
          Ac_X=Ac_X-nowBias.rx();
          Ac_Y=Ac_Y-nowBias.ry();
 
-         AllCoordinate_array.push_back(QPoint(Ac_X,Ac_Y));//把临时Qpoint数据放在SL_ZD_array里面
+         transitionCoordinate.push_back(QPoint(Ac_X,Ac_Y));//把临时Qpoint数据放在SL_ZD_array里面
          //前面已经把上一步计算的坐标存储好了，再把实时的计算坐标转化为，起点在原点的坐标，用于下一步循环计算
          Ac_X=Ac_X+nowBias.rx();
          Ac_Y=Ac_Y+nowBias.ry();
      }
-     qDebug()<<"算法执行结束！总共步数："<<Step;
-//     qDebug()<<"成功使用直线的逐点比较法,并输出临时的坐标数据：";
-//     for(int i=0;i<AllCoordinate_array.size();i++)
-//     {
-//         qDebug()<<"第 "<<i+1<<" 步："<<AllCoordinate_array.at(i);
-//     };
+
+     OutPutMsgToConsle(Running_INFO,"连续切削算法计算结束！总共步数："+QString::number(Step));
  }
 
  QVector<QPoint> StraightLinePTPCM::algorithmExport()
  {
-     return AllCoordinate_array;//返回实际坐标值（按照步进电机的脉冲数为单位）
+     return transitionCoordinate;//返回实际坐标值（按照步进电机的脉冲数为单位）
  }
 
  void StraightLinePTPCM::Deviation_Cal_SL()
