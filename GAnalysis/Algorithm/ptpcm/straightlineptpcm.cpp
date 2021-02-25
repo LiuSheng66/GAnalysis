@@ -6,27 +6,27 @@
 StraightLinePTPCM::StraightLinePTPCM():
     Ac_X (0),
     Ac_Y(0),
-    Line_Result(0)
+    Line_Result(0),
+    Step(0)
 {
     transitionCoordinate.resize(0);//每一个指令的实时坐标初始化为0
 
 //     beginPoint=QPoint(0,0);
 //     endPoint=QPoint(100,100);
 
-    Step=0;//初始化
 }
 
 StraightLinePTPCM::StraightLinePTPCM(QPoint begin,QPoint end):
     Ac_X (0),
     Ac_Y(0),
-    Line_Result(0)
+    Line_Result(0),
+    Step(0)
+
 {
     transitionCoordinate.resize(0);//每一个指令的实时坐标初始化为0
 
      beginPoint=begin;
      endPoint=end;
-
-    Step=0;//初始化
 }
 
 StraightLinePTPCM::~StraightLinePTPCM()
@@ -36,10 +36,10 @@ StraightLinePTPCM::~StraightLinePTPCM()
  void StraightLinePTPCM::algorithmEntry()
 {
      Step=0;//每次使用
-     QString strLine = QString("得到起始点坐标信息:(%1 ,%2) -> (%3 ,%4)").arg(beginPoint.rx()).arg(beginPoint.ry()).arg(endPoint.rx()).arg(endPoint.ry());
+     QString strLine = QString("得到直线起始点坐标信息:(%1 ,%2) -> (%3 ,%4)").arg(beginPoint.rx()).arg(beginPoint.ry()).arg(endPoint.rx()).arg(endPoint.ry());
      OutPutMsgToConsle(Running_INFO,"开始连续切削算法，"+strLine);
      //坐标平移，把起点移到从原点开始,nowBias包含了平移的xy值，
-     QPointF nowBias=Algorithm::OtherToOriginalPoint(beginPoint);
+     QPointF nowBias=OtherToOriginalPoint(beginPoint);
      //实时坐标初始化
      Ac_X = beginPoint.rx();
      Ac_Y = beginPoint.ry();
@@ -64,8 +64,7 @@ StraightLinePTPCM::~StraightLinePTPCM()
          Ac_X=Ac_X+nowBias.rx();
          Ac_Y=Ac_Y+nowBias.ry();
      }
-
-     OutPutMsgToConsle(Running_INFO,"连续切削算法计算结束！总共步数："+QString::number(Step));
+     OutPutMsgToConsle(Running_INFO,"直线_连续切削算法计算结束！总共步数："+QString::number(Step));
  }
 
  QVector<QPoint> StraightLinePTPCM::algorithmExport()

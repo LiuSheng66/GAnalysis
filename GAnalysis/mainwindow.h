@@ -29,6 +29,7 @@ private:
     QScrollArea *scrollArea;
     QList<QDockWidget*> m_docks;
 
+
     //声明菜单栏
     QMenu *fileMenu;//文件菜单栏
     QMenu *editMenu;//编辑菜单栏
@@ -45,8 +46,9 @@ private:
     //声明状态栏
     QStatusBar *statusdisplay;//声明状态栏，状态栏最多只能有一个
     QLabel* outputStatusLabel;//状态栏显示标签控件
+    QLabel* currentWorkFileNameAndFath;//状态栏显示标签控件
     QLabel* xyLabel;//实时坐标地址
-    QPushButton *pushBtn;
+    QPushButton *outBtn;
 
     //声明DockWidget
     QDockWidget *workSpaceDockWidget;
@@ -100,7 +102,7 @@ private:
     void SaveFile();
     void SaveAsFile();
     void CloseFile();
-    void CloseSystem();
+    void ExitSystem();
 
     void TestFun();
 
@@ -112,7 +114,7 @@ public:
     void removeAllDock();
     void showDock(const QList<int>& index = QList<int>());
     void setTextColor(QTextEdit *textEdit,QColor *color);//设置文字编辑框的文字颜色
-
+    void outCurrentWorkMsg();//再消息输出框中，（当点击运行后）显示出当前的工作G代码文件和当前开始时间
     void ConvertShowOrHide(QWidget *widget);//对输入的窗口，进行切换窗口的显示或隐藏
     void AlgoRunByCmd(QVector<CommandStatus*> temCmdTotal);//把解析后的指令和计算算法联系上，并按照指令计算
 

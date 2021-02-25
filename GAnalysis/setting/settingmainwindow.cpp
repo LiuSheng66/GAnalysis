@@ -78,7 +78,17 @@ void SettingMainWindow::ListWidgetInit()
 
 void SettingMainWindow::btnOKFun()
 {
-    setConfi("jieming","jianming");
+//    switch (ui->listWidgetItem->currentRow()) {
+//    case 1:
+//        OutPutMsgToConsle(Information_INFO,"设置界面第一个Item"+algoList->text());
+//        break;
+//    case 2:
+//        OutPutMsgToConsle(Information_INFO,"设置界面第二个Item"+textEditList->text());
+//        break;
+//    default:
+//        break;
+//    }
+//    setConfi("jieming","jianming");
 
     this->close();
 }

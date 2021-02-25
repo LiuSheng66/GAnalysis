@@ -1,9 +1,13 @@
 #include "global.h"
-
+#include"QDateTime"
+#include <QFont>
 QTextEdit *exportMessage;
 
-//QPainter p(exportMessage);
 QString addressConfiStr="C://Users//Administrator//Desktop//homework//CONFIG.ini";
+double pulseEquivalent=1.00;//初始化脉冲当量为0.01mm，根据需要可以更改
+QString workFileNameAndFath="";//设置默认工作G代码的文件名为空
+bool isRunAnalysis=false;//作为程序是否开始解析的信号标志
+QVector<QPoint> allCoordinateVector(0);//轨迹总坐标容器大小默认为0
 
 
 void outMessageDisplay(QString str, QTextEdit &MessageDisplayWindow)
@@ -26,15 +30,17 @@ void OutPutMsgToConsle(ConSleLevel level, const QString &strText, QTextEdit &Mes
 //        return;
 //    }
 
+    MessageDisplayWindow.moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);//把可见光标移动到消息框尾部
     MessageDisplayWindow.append(strText);
 
     //选中需要显示颜色的文字
     QTextCursor cursor = MessageDisplayWindow.textCursor();
+
 //    cursor.setPosition(cursor.position(),QTextCursor::MoveAnchor);
 //    cursor.setPosition(cursor.position() + strText.length(),QTextCursor::KeepAnchor);
 //    cursor.select(QTextCursor::BlockUnderCursor);//选择光标下的文本块，也可改成只选中单词
-    cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor,1);
-    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor,1);
+    cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor,1);
+    cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor,1);
 
     QTextCharFormat fmt;
    //根据不同等级绘制不同颜色
@@ -56,27 +62,63 @@ void OutPutMsgToConsle(ConSleLevel level, const QString &strText, QTextEdit &Mes
     default:
         break;
     }
+    fmt.setFontWeight(QFont::Normal);
     cursor.mergeCharFormat(fmt);
     cursor.clearSelection(); //撤销选中
-    cursor.movePosition(QTextCursor::EndOfBlock);  //cursor和anchor均移至末尾
+    cursor.movePosition(QTextCursor::EndOfLine);  //cursor和anchor均移至末尾
 }
 
 void OutdatedMsgToConsle(QTextEdit &MessageDisplayWindow)
 {
+    MessageDisplayWindow.moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);//把可见光标移动到消息框尾部
     //选中需要显示颜色的文字
-    QTextCursor cursor = MessageDisplayWindow.textCursor();
+    QTextCursor cursor =MessageDisplayWindow.textCursor();
+
     cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor,1);//QTextCursor::Start代表从输出的全部的消息的最初开始定锚点
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor,1);
     QTextCharFormat fmt;
     fmt.setForeground(QColor(211, 211 ,211));
+    fmt.setFontWeight(QFont::Normal);
 
     cursor.mergeCharFormat(fmt);
     cursor.clearSelection(); //撤销选中
-    cursor.movePosition(QTextCursor::EndOfBlock);  //cursor和anchor均移至末尾
-    if(!MessageDisplayWindow.toPlainText().isEmpty())
+    cursor.movePosition(QTextCursor::End);  //cursor和anchor均移至末尾
+    if(!MessageDisplayWindow.toPlainText().isEmpty())//如果消息输出框当前为不为空，则下次开始吧消息置灰时，会换一行，区别前后的消息
     {
          MessageDisplayWindow.append("\n");
     };
+
+}
+
+void OutRunMsgToConsle(const QString &fileNameAndPathWork,QTextEdit &MessageDisplayWindow)
+{
+    MessageDisplayWindow.moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);//把可见光标移动到消息框尾部
+    if(isRunAnalysis){
+        QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
+        if(workFileNameAndFath==NULL)
+        {
+            return;
+        }else{
+            MessageDisplayWindow.append(time.toString("hh:mm:ss")+": Starting "+workFileNameAndFath);
+        }
+
+    }
+    if(!isRunAnalysis){
+        QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
+        MessageDisplayWindow.append(time.toString("hh:mm:ss:")+" "+workFileNameAndFath+" exited with code 0");
+    }
+    //选中需要显示颜色的文字
+    QTextCursor cursor = MessageDisplayWindow.textCursor();
+
+    cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor,1);//QTextCursor::Start代表从输出的全部的消息的最初开始定锚点
+    cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor,1);
+    QTextCharFormat fmt;
+    fmt.setForeground(Qt::blue);
+    fmt.setFontWeight(QFont::Bold);//加粗
+
+    cursor.mergeCharFormat(fmt);
+    cursor.clearSelection(); //撤销选中
+    cursor.movePosition(QTextCursor::EndOfLine);  //cursor和anchor均移至末尾
 
 }
 
@@ -91,11 +133,10 @@ void setConfi(QString SectionName, QString keyName, QString keyValue,QString str
             settings->setIniCodec("UTF-8");
             settings->setValue( SectionName+"/"+keyName,keyValue);//将内容写入ini文件中
             delete settings;
-            OutPutMsgToConsle(Information_INFO,"setConfi函数： 参数写入 完成！");
         }
         else
         {
-            OutPutMsgToConsle(Information_INFO,"setConfi函数： 参数写入 失败！");
+            OutPutMsgToConsle(Critical_INFO,"setConfi函数： 参数写入 失败！");
         };
 }
 
@@ -106,13 +147,11 @@ QString getConfi(QString SectionName,QString keyName,QString strFileAddressAndNa
         QSettings *settings = new QSettings(strFileAddressAndName,QSettings::IniFormat);//调用QSettings操作ini文件
         QString keyValue = settings->value(SectionName+"/"+keyName).toString();//按照对应的节名和键名，读出ini文件中保存的内容，默认为空
         delete settings;
-        OutPutMsgToConsle(Information_INFO,"getConfi函数： 参数读取 完成！");
-
         return keyValue;
     }
     else
     {
-        OutPutMsgToConsle(Information_INFO,"getConfi函数： 参数读取 失败！");
+        OutPutMsgToConsle(Critical_INFO,"getConfi函数： 参数读取 失败！");
         return NULL;
     };
 }
@@ -168,9 +207,6 @@ bool isFileExist(QString strFileAddress)
 }
 
 
-
-double pulseEquivalent=0.01;//初始化脉冲当量为0.01mm，根据需要可以更改
-
 int distanceToPulses(double distance)
 {
     return distance/pulseEquivalent;//返回步进电机所需的脉冲数
@@ -181,4 +217,4 @@ double pulsesToDistance(int pulses)
     return pulses*pulseEquivalent;//返回步进电机执行脉冲数后在机床实际坐标系中表现出来的实际位移（mm）
 }
 
-QVector<QPoint> AllCoordinate_array;
+

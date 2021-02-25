@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     Algorithm/algorithm.cpp \
+    Algorithm/ptpcm/circulararcptpcm.cpp \
     Algorithm/ptpcm/straightlineptpcm.cpp \
     Command/gcommand.cpp \
     Command/mycommand.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
 
 HEADERS += \
     Algorithm/algorithm.h \
+    Algorithm/ptpcm/circulararcptpcm.h \
     Algorithm/ptpcm/straightlineptpcm.h \
     Command/gcommand.h \
     Command/mycommand.h \

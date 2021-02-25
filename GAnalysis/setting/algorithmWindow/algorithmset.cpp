@@ -60,9 +60,11 @@ void algorithmSet::onButtonClicked(QAbstractButton *button)
     {
 
     setConfi("algorithmSet","algorithmWay","ZhuDian");
+    OutPutMsgToConsle(Warning_INFO,"执行算法已更改，当前计算算法:逐点比较法");
     };
     if(button==radioBtn_DDA)
     {
     setConfi("algorithmSet","algorithmWay","DDA");
+    OutPutMsgToConsle(Warning_INFO,"执行算法已更改，当前计算算法:DDA(数字积分法)");
     };
 }

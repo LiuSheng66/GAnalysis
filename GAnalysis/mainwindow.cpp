@@ -17,6 +17,7 @@
 #include<Command/mycommand.h>
 #include"setting/settingmainwindow.h"
 #include"Algorithm/ptpcm/straightlineptpcm.h"
+#include"Algorithm/ptpcm/circulararcptpcm.h"
 #include"Global/global.h"
 #include<QVector>
 
@@ -232,7 +233,7 @@ void MainWindow::CreateActions()//实例化下拉菜单功能
     closeSystemAct = new QAction( QStringLiteral("退出(&X)"), this);
     closeSystemAct->setStatusTip(QStringLiteral("退出"));
     closeSystemAct->setShortcuts(QKeySequence::Close);//创建快捷键
-    connect(closeSystemAct, &QAction::triggered, this, &MainWindow::CloseSystem);
+    connect(closeSystemAct, &QAction::triggered, this, &MainWindow::ExitSystem);
 
     //**************************************************************************************************//
     //*************************************    帮助     *********************************************//
@@ -340,6 +341,12 @@ void MainWindow::CreateStatusbar()
     statusBar()->setMinimumHeight(25);
     statusBar()->setStyleSheet(QString("QStatusBar::item{border: 1px}")); // 不显示边框
 
+    currentWorkFileNameAndFath = new QLabel();
+    currentWorkFileNameAndFath->setFont(font);
+    currentWorkFileNameAndFath->setText(workFileNameAndFath);
+    currentWorkFileNameAndFath->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    statusBar()->addWidget(currentWorkFileNameAndFath);
+
     xyLabel = new QLabel("X=  ,  Y=  "); //状态栏显示鼠标点的坐标
     xyLabel->setMinimumWidth(20);
     xyLabel->setFont(font);
@@ -359,14 +366,14 @@ void MainWindow::CreateStatusbar()
     statusBar()->addPermanentWidget(outputStatusLabel);
 //    statusBar()->addWidget(outputStatusLabel);
 
-    pushBtn=new QPushButton(this);
-    pushBtn->setText("1 输出");
-    pushBtn->setFont(font);
-    pushBtn->setFlat(true);//就是这句实现按钮透明的效果。
-    statusBar()->addPermanentWidget(pushBtn);
+    outBtn=new QPushButton(this);
+    outBtn->setText("1 输出");
+    outBtn->setFont(font);
+    outBtn->setFlat(true);//就是这句实现按钮透明的效果。
+    statusBar()->addPermanentWidget(outBtn);
 
     //点击按钮显示或
-    connect(pushBtn, &QPushButton::clicked, this,[=](){
+    connect(outBtn, &QPushButton::clicked, this,[=](){
         ConvertShowOrHide(outPutdockWidget);
     });
 
@@ -409,31 +416,41 @@ void MainWindow::TestFun()
 
 void MainWindow::OpenFile()
 {
-    QString path=QFileDialog::getOpenFileName(this,"打开文件","C://Users//Administrator//Desktop");
-//    lineEdit->setText(path);//可以把路径输出到编辑框中
-
+    QString filename=QFileDialog::getOpenFileName(this,"打开文件","C://Users//Administrator//Desktop");
+    if(filename=="") return;//如果没有点击文件打开，就返回空的文件名
     //编码格式类,默认UTF-8
-    QTextCodec *codec=QTextCodec::codecForName("UTF-8");
+//    QTextCodec *codec=QTextCodec::codecForName("UTF-8");
 
     //读取内容
-    QFile file(path);
-    file.open(QIODevice::ReadOnly);
-    QByteArray FileContent=file.readAll();
-//    textEditGCode->clear();
-//    textEditGCode->show();
-//    textEditGCode->setText(codec->toUnicode(FileContent));
-//    MyHighLighter * h = new MyHighLighter(textEditGCode->document());//传一个QTextDocument,添加语言高亮
+    if(filename.right(3)=="txt"||filename.right(3)=="cnc"||filename.right(3)=="CNC"||filename.right(3)=="TXT")
+    {
+       QFile file(filename);
+       if(file.open(QIODevice::ReadOnly))
+      {
+           workFileNameAndFath=file.fileName();
+           QTextStream stream(&file);
+           stream.setCodec("UTF-8");//设置编码,默认UTF-8
+           QString buf = stream.readAll();
+           gEditWidget->setPlainText(buf);
+       }
+       else
+       {
+           OutPutMsgToConsle(Critical_INFO,"打开文件失败!! 请尝试重新打开");
+       };
+       file.close();
+       //显示工作文件的路径
+       QFont font("Microsoft YaHei", 10);//设置显示文字的字体和文字大小
+       currentWorkFileNameAndFath->setText(filename);
+    }
+    else{
+        OutPutMsgToConsle(Warning_INFO,"不支持该格式的文件");};
 
-    gEditWidget->clear();
     gEditWidget->setReadOnly(false);
     QFont *gEditFont=new QFont( "Times New Roman", 13);//设置字体及大小
     gEditWidget->setFont(*gEditFont);
-    gEditWidget->setPlainText(codec->toUnicode(FileContent));
     MyHighLighter *highlighter = new MyHighLighter(gEditWidget->document());
 
-
-
-    file.close();
+//    file.close();
 
     //设置文字颜色
     QPalette TextColorPal=this->palette();
@@ -464,12 +481,58 @@ void MainWindow::NewFile()
     textEditGCode->setPalette(*textEditGCodePal);
     workSpaceDockWidget->setWidget(textEditGCode);*/
 
-    gEditWidget->clear();
-    gEditWidget->setReadOnly(false);
+    if(gEditWidget->toPlainText()!="")	//如果编辑框不为空
+     {
+        QMessageBox msgBox;
+        msgBox.setText("Save?");
+        msgBox.setInformativeText("请问是否保存当前G代码和坐标数据？");
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+        msgBox.button(QMessageBox::Save)->setText("Save&New");
+        msgBox.button(QMessageBox::Cancel)->setText("noSave&New");
+        msgBox.setDefaultButton(QMessageBox::Save);
+
+        int ret = msgBox.exec();
+        switch (ret) {
+            case QMessageBox::Save:{//仅保存G代码
+                 SaveFile();
+                 workFileNameAndFath="";
+                 currentWorkFileNameAndFath->setText(workFileNameAndFath);//更新当前的状态栏，显示当前工作文件地址
+                 gEditWidget->clear();
+                 gEditWidget->setReadOnly(false);
+                 allCoordinateVector.resize(0);
+                 OutPutMsgToConsle(Information_INFO,"保存文件结束，并新建文件 成功 !");
+                 break;}
+            case QMessageBox::Cancel:{//都不保存
+                 workFileNameAndFath="";
+                 currentWorkFileNameAndFath->setText(workFileNameAndFath);
+                 gEditWidget->clear();
+                 gEditWidget->setReadOnly(false);
+                 allCoordinateVector.resize(0);
+                 OutPutMsgToConsle(Warning_INFO,"没有保存G代码和坐标数据！并新建文件 成功 !");
+                 break;}
+            default:
+                 OutPutMsgToConsle(Critical_INFO,"文件保存判断框:int MainWindow::CloseFile()，按钮点击出错，请详细排查问题");
+                 return;
+                 break;
+          }
+        }
+        else//编辑框为空
+        {
+            gEditWidget->clear();
+            gEditWidget->setReadOnly(false);
+            workFileNameAndFath="";
+            currentWorkFileNameAndFath->setText(workFileNameAndFath);
+            allCoordinateVector.resize(0);
+            OutPutMsgToConsle(Information_INFO,"新建文件 成功 !");
+        }
+
     QFont *gEditFont=new QFont( "Times New Roman", 13);//设置字体及大小
     gEditWidget->setFont(*gEditFont);
     MyHighLighter *highlighter = new MyHighLighter(gEditWidget->document());
     workSpaceDockWidget->setWidget(gEditWidget);
+
+
 
 //    workSpaceDockWidget ->setMinimumSize(200, this->height());
 //    workSpaceDockWidget->setAutoFillBackground(true);//加这句，下面设置颜色时，可以设置标题和控件主体的颜色，否则只能设置标题栏的颜色
@@ -496,91 +559,126 @@ void MainWindow::NewFile()
 
 void MainWindow::SaveFile()
 {
-    bool exist;
+    //需要保存的东西:1.文本编辑框的G代码，2.轨迹坐标，3.绘画图形
+    //可能存在的问题:1.只有编辑框有内容 2.只有轨迹坐标 ，3.只有轨迹坐标和图形 （暂不考虑），4.编辑框有内容+轨迹坐标，5.编辑框有内容+轨迹坐标+图形（暂不考虑）
+    //保存编辑框的G代码文本
+    if(gEditWidget->toPlainText()==""){
+        OutPutMsgToConsle(Information_INFO,"无G代码需要保存");
+        return;
+    };
 
-
-    QDir *coordinateFolder = new QDir;
-    exist = coordinateFolder->exists("C://Users//Administrator//Desktop//坐标数据");//查看目录是否存在（默认保存到桌面）
-    //不存在就创建
-    if(!exist)
+    if(workFileNameAndFath==""&&gEditWidget->toPlainText()!=""){
+        SaveAsFile();
+    }else
     {
-        bool ok = coordinateFolder->mkdir("C://Users//Administrator//Desktop//坐标数据");//创建子目录
-        if(ok)
+        QFile file(workFileNameAndFath);
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))//追加写入 添加结束符\r\n
         {
-            QMessageBox::information(this,tr("创建数据保存文件夹"),tr("文件夹创建成功!"));//添加提示方便查看是否成功创建
+            OutPutMsgToConsle(Critical_INFO,"打开文件进行G代码保存失败!! 请检查当前的G代码文件地址并尝试重新保存，当前文件地址: "+workFileNameAndFath);
+            return ;
+        }
+        else
+        {
+            file.write(gEditWidget->toPlainText().toUtf8());
+        }
+        file.close();
+//**************************************
+        //保存坐标轨迹到数据文本
+        if(allCoordinateVector.size()>0)
+        {
+            QFile coordinateDataFile("C://Users//Administrator//Desktop//homework//坐标数据.csv");
+            if(!coordinateDataFile.open(QIODevice::WriteOnly | QIODevice::Text))//追加写入 添加结束符\r\n
+            {
+                OutPutMsgToConsle(Critical_INFO,"打开文件进行坐标数据保存失败!! 请尝试重新保存");
+                return ;
+            }
+            else
+            {
+                int i=0;
+                for (i=0;i<(allCoordinateVector.size());i++)
+                {
+                    //写入内容,这里需要转码，否则报错。
+                    QByteArray str = QString("%1,%2\n").arg(allCoordinateVector.at(i).x()).arg(allCoordinateVector.at(i).y()).toUtf8();
+                    coordinateDataFile.write(str);
+                };
+
+                if(i==allCoordinateVector.size())
+                {
+                    OutPutMsgToConsle(Information_INFO,"数据文件保存成功!!");
+                };
+            }
         }else
         {
-            QMessageBox::warning(this,tr("创建数据保存文件夹"),tr("文件夹创建失败！！"));
-        }
-    }
-    //为了点击保存，就直接保存，且不会覆盖以往的文件，采用时间为文件名进行保存
-    QDateTime Time = QDateTime::currentDateTime();//获取系统现在的时间
-    QString strTime = Time.toString("坐标数据 yyyy_MM_dd hh_mm_ss");//设置显示格式
-    QString fileName = tr("C://Users//Administrator//Desktop//坐标数据//%1.txt").arg(strTime);//设置保存文件的文件名
+            OutPutMsgToConsle(Information_INFO,"无坐标数据需要被保存!!");
+        };
+    };
 
-    QFile file(fileName);
-    if(!file.open(QIODevice::WriteOnly | QIODevice::Text))//追加写入 添加结束符\r\n
-    {
-        QMessageBox::warning(this,tr("打开文件"),tr("打开文件失败,数据保存失败！！请重新尝试"));
-        return ;
-    }
-    else
-    {
-
-          file.write("尝试保存数据");
-//        if(MainAlgorithmFunction::AllCoordinate_array.size()>0)
-//        {
-//            for (int i=0;i<(MainAlgorithmFunction::AllCoordinate_array.size()-1);i++)
-//            {
-//                int xDisply=MainAlgorithmFunction::AllCoordinate_array.at(i).x();
-//                int yDisply=MainAlgorithmFunction::AllCoordinate_array.at(i).y();
-//                QString content = QString("%1,%2\n").arg(xDisply).arg(yDisply);
-//                //写入内容,这里需要转码，否则报错。
-//                QByteArray str = content.toUtf8();
-//                file.write(str);
-//            }
-//        }
-//        else
-//        {
-//            file.write("warning:无数据需要保存");
-//        }
-
-    }
-    file.close();
-    QMessageBox::information(this,tr("创建新文件"),tr("已创建新的数据保存文件"));
 }
 
 void MainWindow::SaveAsFile()
 {
-    //弹出保存的窗口,使用多个格式过滤器时，使用;;来分隔每种格式,同一种文件拥有多种格式"Images (*.png *.xpm *.jpg)"
-    QString path=QFileDialog::getSaveFileName(this,"文件另存为","C://Users//Administrator//Desktop","Text files (*.txt);;CSV(逗号分隔)(*.csv);;Excel工作簿(*.xlsx);;PDF(*.pdf);;XML files (*.xml)");
-    //保存输入的保存文件名
-    QFile file(path);
-    //打开文件,QIODevice::Text,读取时，行尾终止符转换为'\n'。写入时，行尾终止符将转换为本地编码，例如Win32的'\r\n'
-    file.open(QIODevice::WriteOnly | QIODevice::Text);
-//    if(MainAlgorithmFunction::AllCoordinate_array.size()>0)
-//    {
-//        for (int i=0;i<(MainAlgorithmFunction::AllCoordinate_array.size()-1);i++)
-//        {
-//            int xDisply=MainAlgorithmFunction::AllCoordinate_array.at(i).x();
-//            int yDisply=MainAlgorithmFunction::AllCoordinate_array.at(i).y();
-//            QString content = QString("%1,%2\n").arg(xDisply).arg(yDisply);
-//            //写入内容,这里需要转码，否则报错。
-//            QByteArray str = content.toUtf8();
-//            file.write(str);
-//        }
-//    }
-    file.write("尝试保存数据");
-    //关闭文件
-    file.close();
+
+    if(gEditWidget->toPlainText()==""){
+        OutPutMsgToConsle(Information_INFO,"无G代码需要保存");
+        return;
+    };
+    if(gEditWidget->toPlainText()!=""){
+        //弹出保存的窗口,使用多个格式过滤器时，使用;;来分隔每种格式,同一种文件拥有多种格式"Images (*.png *.xpm *.jpg)"
+        QString gfileNmae=QFileDialog::getSaveFileName(this,"文件另存为","C://Users//Administrator//Desktop","Text files (*.txt);;CSV(逗号分隔)(*.csv);;Excel工作簿(*.xlsx);;XML files (*.xml)");
+        workFileNameAndFath=gfileNmae;
+        //保存输入的保存文件名
+        QFile gfile(gfileNmae);
+        if(!gfile.open(QIODevice::WriteOnly | QIODevice::Text))//追加写入 添加结束符\r\n
+        {
+            OutPutMsgToConsle(Critical_INFO,"打开文件进行G代码保存失败!! 请检查当前的G代码文件地址并尝试重新保存，当前文件地址: "+workFileNameAndFath);
+            return ;
+        }
+        else
+        {
+            gfile.write(gEditWidget->toPlainText().toUtf8());
+        }
+        gfile.close();
+    };
+//*************************************************
+
+    //保存坐标轨迹到数据文本
+    if(allCoordinateVector.size()>0)
+    {
+        QFile coordinateDataFile("C://Users//Administrator//Desktop//homework//坐标数据.csv");
+        if(!coordinateDataFile.open(QIODevice::WriteOnly | QIODevice::Text))//追加写入 添加结束符\r\n
+        {
+            OutPutMsgToConsle(Critical_INFO,"打开文件进行坐标数据保存失败!! 请尝试重新保存");
+            return ;
+        }
+        else
+        {
+            int i=0;
+            for (i=0;i<(allCoordinateVector.size());i++)
+            {
+                //写入内容,这里需要转码，否则报错。
+                QByteArray str = QString("%1,%2\n").arg(allCoordinateVector.at(i).x()).arg(allCoordinateVector.at(i).y()).toUtf8();
+                coordinateDataFile.write(str);
+            };
+
+            if(i==allCoordinateVector.size())
+            {
+                OutPutMsgToConsle(Information_INFO,"数据文件保存成功!!");
+            };
+        }
+        coordinateDataFile.close();
+    }else
+    {
+        OutPutMsgToConsle(Information_INFO,"无坐标数据需要被保存!!");
+    };
+
 }
 
 void MainWindow::CloseFile()
 {
-    textDisplayGCode->clear();
-    textEditGCode->clear();
-    textDisplayGCode->setReadOnly(true);
-    textEditGCode->setReadOnly(true);
+//    textDisplayGCode->clear();
+//    textEditGCode->clear();
+//    textDisplayGCode->setReadOnly(true);
+//    textEditGCode->setReadOnly(true);
 
 //    textEditGCode=new QTextEdit;
 //    delete textEditGCode;
@@ -590,6 +688,56 @@ void MainWindow::CloseFile()
     //设置文字颜色
 //    textEditGCodePal->setColor(QPalette::Base,QColor(190,190,190));//白色 文字显示的背景色, 默认是灰色的
 //    textEditGCode->setPalette(*textEditGCodePal);
+
+    if(gEditWidget->toPlainText()!=""||allCoordinateVector.size()!=0)	//如果编辑框不为空
+     {
+        QMessageBox msgBox;
+        msgBox.setText("Save?");
+        msgBox.setInformativeText("请问是否保存当前G代码和坐标数据？");
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setStandardButtons(QMessageBox::Save |QMessageBox::Close |QMessageBox::Cancel);
+        msgBox.button(QMessageBox::Save)->setText("Save");
+        msgBox.button(QMessageBox::Close)->setText("no Save");
+        msgBox.button(QMessageBox::Cancel)->setText("Cancel");
+        msgBox.setDefaultButton(QMessageBox::Save);
+
+        int ret = msgBox.exec();
+        switch (ret) {
+            case QMessageBox::Save:{//仅保存G代码
+                 SaveFile();
+                 workFileNameAndFath="";
+                 currentWorkFileNameAndFath->setText(workFileNameAndFath);//更新当前的状态栏，显示当前工作文件地址
+                 gEditWidget->clear();
+                 gEditWidget->setReadOnly(true);
+                 allCoordinateVector.resize(0);
+                 OutPutMsgToConsle(Information_INFO,"保存G代码和轨迹坐标并关闭当前编辑文件 成功 !");
+                 break;}
+            case QMessageBox::Close:{//都不保存
+                 workFileNameAndFath="";
+                 currentWorkFileNameAndFath->setText(workFileNameAndFath);
+                 gEditWidget->clear();
+                 gEditWidget->setReadOnly(true);
+                 allCoordinateVector.resize(0);
+                 OutPutMsgToConsle(Warning_INFO,"关闭当前编辑文件并把轨迹坐标清空 成功 !");
+                 break;}
+            case QMessageBox::Cancel:{
+                return;
+                 break;}
+            default:
+                 OutPutMsgToConsle(Critical_INFO,"文件保存判断框:int MainWindow::CloseFile()，按钮点击出错，请详细排查问题");
+                 return;
+                 break;
+          }
+        }
+        else//编辑框为空，轨迹坐标为空
+        {
+            gEditWidget->clear();
+            gEditWidget->setReadOnly(true);
+            workFileNameAndFath="";
+            currentWorkFileNameAndFath->setText(workFileNameAndFath);
+            allCoordinateVector.resize(0);
+        }
+
 
     QPalette *workSpacePal=new QPalette;
     workSpacePal->setColor(QPalette::Window,QColor(190,190,190));//灰色 ，表示没有文件能被编辑
@@ -602,35 +750,47 @@ void MainWindow::CloseFile()
 void MainWindow::beginAnalysis()
 {
     const QIcon PauseAnalysActIcon =QIcon(":/image/icon/pauseAnalysis.png");
+    const QIcon PauseAnalysActIcon1 =QIcon(":/image/icon/beginanalysis.png");
     analysisAndDawAct ->setIcon(PauseAnalysActIcon);
-    analysisAndDawAct->setStatusTip(QStringLiteral("暂停"));
-    QMessageBox::information(this,tr("测试函数"),tr("已点击"));
+    OutPutMsgToConsle(Warning_INFO,"pauseAnalysis");
 
+//    analysisAndDawAct->setStatusTip(QStringLiteral("暂停"));
+//    QTime dieTime = QTime::currentTime().addMSecs(3);//秒
+//    while( QTime::currentTime() < dieTime )
+//    {
+//        ;
+//    };
+    analysisAndDawAct ->setIcon(PauseAnalysActIcon1);
+    OutPutMsgToConsle(Warning_INFO,"beginAnalysis");
 }
 void MainWindow::onlyAnalysis()
 {
-//    exportMessage->setTextColor(QColor(211, 211 ,211));
-//    QString  qstrText("<font color=\"#D3D3D3\">BLUE<\font>");
-//    exportMessage->setText(qstrText);
     OutdatedMsgToConsle();//把之前可能存在的消息，置于灰色代表是上一次的过时消息
 
-    //第一步，输入指令得到解析的指令
+//第一步，输入指令得到解析的指令
+    if(gEditWidget->toPlainText().isEmpty()){//判断是否有指令输入
+        QMessageBox::critical(nullptr,"指令输入检测","没有指令输入!! 请先手动输入指令，或者导入外部指令");
+        return;};
+    isRunAnalysis=true;//设置当前程序开始运行的标志
+    OutRunMsgToConsle();
     GCommand *baseCommand=NULL;//抽象类，指令解析基类
     MyCommand *mycommand=new MyCommand(*gEditWidget);//初始化指令文本输入
     //判断读取到的指令系统
     if(getConfi("CommandSystem","GCommand")=="MyCommand")
     {
         OutPutMsgToConsle(Warning_INFO,"MainWindow::onlyAnalysis(): 读取到的指令解析系统为 MyCommand");
-        //第二步，按照解析后的指令，通过匹配算法进行计算
+//第二步，按照解析后的指令，通过匹配算法进行计算
 //        mycommand->commandExport();
         if(getConfi("algorithmSet","algorithmWay")=="ZhuDian")//但是逐点比较法时
         {
             OutPutMsgToConsle(Warning_INFO,"读取到当前执行算法为:逐点比较法");
+//            outCurrentWorkMsg();
             AlgoRunByCmd(baseCommand->commandFrame(mycommand)->commandExport());//先按照输入的文本指令得到解析后的指令，再按照指令执行算法计算，得到总的轨迹坐标
             OutPutMsgToConsle(Running_INFO,"按照指令和算法计算总坐标，结束！");
+//第三步，根据算法计算后的坐标轨迹进行输出（绘画，坐标输出，文件输出）
 
         }
-        else if(getConfi("algorithmSet","algorithmWay")=="DDA")//但是逐点比较法时
+        else if(getConfi("algorithmSet","algorithmWay")=="DDA")//按照DDA算法来执行相关计算
         {
             OutPutMsgToConsle(Warning_INFO,"读取到当前执行算法为:DDA(数字积分法)，但由于尚未添加相关算法，暂不执行，结束");
             return;
@@ -641,17 +801,10 @@ void MainWindow::onlyAnalysis()
         OutPutMsgToConsle(Critical_INFO,"MainWindow::onlyAnalysis(): 没有读取到具体的指令解析系统，程序终止！");
         return;//没有读取到指令系统则直接结束整体所有工作
     };
+    isRunAnalysis=false;//设置当前程序结束运行的标志
+    OutRunMsgToConsle();
 
 
-    //第三步，根据算法计算后的坐标轨迹进行输出（绘画，坐标输出，文件输出）
-
-//    StraightLinePTPCM *algoPTPCM=new StraightLinePTPCM();
-//    Algorithm *base=NULL;
-//    //起点和终点坐标输入，后期需要由指令得到
-//    algoPTPCM->setInitPoint(QPoint(0,0), QPoint(15,10));
-
-//    base->algorithmBengin(algoPTPCM);//此处根据传入的算法对象不同，实现不同的算法，多态发生
-//    base->testAlgorithmExport(algoPTPCM);    //测试，把临时坐标数据输出到输出窗口
 
 }
 void MainWindow::Setting()
@@ -661,7 +814,7 @@ void MainWindow::Setting()
     settingWindow->show();
 }
 
-void MainWindow::CloseSystem()
+void MainWindow::ExitSystem()
 {
     QMessageBox::StandardButton btn;
     btn = QMessageBox::question(this, QStringLiteral("提示"), QStringLiteral("是否退出系统?"), QMessageBox::Yes|QMessageBox::No);
@@ -691,6 +844,13 @@ void MainWindow::setTextColor( QTextEdit *textEdit,QColor *color) {
     textEdit->setPalette(textEditGCodePal);
 }
 
+void MainWindow::outCurrentWorkMsg()
+{
+    QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
+
+    OutPutMsgToConsle(Running_INFO,time.toString("hh:mm:ss"));
+}
+
 void MainWindow::ConvertShowOrHide(QWidget *widget)
 {
     //根据是否显示决定显示或隐藏，点击一次切换状态，显示或隐藏
@@ -703,28 +863,46 @@ void MainWindow::ConvertShowOrHide(QWidget *widget)
     }
 }
 
+//把解析后的指令，按照一种确定的切割算法，计算出轨迹坐标
 void MainWindow::AlgoRunByCmd(QVector<CommandStatus *> temCmdTotal)
 {
-    AllCoordinate_array.resize(0);//每次需要计算一整份指令文本，需要提前把轨迹坐标总容器置0，排除前一轮计算的结果干扰
-    StraightLinePTPCM *algoPTPCM=new StraightLinePTPCM();
+    allCoordinateVector.resize(0);//每次需要计算一整份指令文本，需要提前把轨迹坐标总容器置0，排除前一轮计算的结果干扰
     Algorithm *base=NULL;
+
+    StraightLinePTPCM *algoPTPCM=new StraightLinePTPCM();
+    CircularArcPTPCM *algoDDA=new CircularArcPTPCM();
+    QPoint beginPoint(0,0);//整体的轨迹坐标都是从（0,0）开始的
+
     for (int i=0;i<temCmdTotal.size();i++) {
-        if(temCmdTotal.at(i)->isNeedFire)//当前行的指令是否需要切割工作
+        //当前行的指令是否需要切割工作
+        if(temCmdTotal.at(i)->isNeedFire)
         {
             OutPutMsgToConsle(Running_INFO,"当前需要切割的行号i: "+QString::number(i+1));
-            if(temCmdTotal.at(i)->line==STR_LINE)//当时直线时
+            if(temCmdTotal.at(i)->line==STR_LINE)//指令是直线切割
             {
-                algoPTPCM->setInitPoint(QPoint(0,0),QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y));
-                base->algorithmFrame(algoPTPCM);//此处根据传入的算法对象不同，实现不同的算法，多态发生
+                //每条指令计算轨迹之前，给当前线段赋起点和终点
+                algoPTPCM->setInitPoint(beginPoint,QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y));
+                beginPoint=QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y);//把上一次的终点赋值给下一段的开始
+                base->algorithmFrame(algoPTPCM);//开始计算轨迹坐标，此处根据传入的算法对象不同，实现不同的算法，多态发生
 
-                AllCoordinate_array<<algoPTPCM->algorithmExport();//把当前线段的临时坐标添加到中的坐标容器里
-                OutPutMsgToConsle(Running_INFO,"坐标总容器的大小: "+QString::number(AllCoordinate_array.size()));
+                allCoordinateVector<<(algoPTPCM->algorithmExport());//把当前线段的临时坐标添加到总的坐标容器里
+                OutPutMsgToConsle(Information_INFO,"直线_切割算法计算后，此次及之前坐标累加的容器大小: "+QString::number(allCoordinateVector.size()));
 //                base->testAlgorithmExport(algoPTPCM->algorithmExport());//输出当前的临时坐标
             }
-            else if(temCmdTotal.at(i)->line==ARC_LINE)//当时圆弧时
+            else if(temCmdTotal.at(i)->line==ARC_LINE)//指令是圆弧切割
             {
-                OutPutMsgToConsle(Information_INFO,"还未实现圆弧算法");
+                //每条指令计算轨迹之前，给当前线段赋起点，终点和圆心
+                algoDDA->setInitPoint(beginPoint,QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y),QPoint(temCmdTotal.at(i)->point.i,temCmdTotal.at(i)->point.j));
+//                OutPutMsgToConsle(Critical_INFO,"测试圆弧算法: "+QString::number(beginPoint.rx())+","+QString::number(beginPoint.ry())+"|"+QString::number(temCmdTotal.at(i)->point.x)+","+QString::number(temCmdTotal.at(i)->point.y)+"|"+QString::number(temCmdTotal.at(i)->point.i)+","+QString::number(temCmdTotal.at(i)->point.j));
+                beginPoint=QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y);//把上一次的终点赋值给下一段的开始
+                base->algorithmFrame(algoDDA);//开始计算轨迹坐标，此处根据传入的算法对象不同，实现不同的算法，多态发生
+
+                allCoordinateVector<<(algoDDA->algorithmExport());//把当前线段的临时坐标添加到总的坐标容器里
+                OutPutMsgToConsle(Information_INFO,"圆弧_切割算法计算后，此次及之前坐标累加的容器大小: "+QString::number(allCoordinateVector.size()));
             };
+        }else
+        {
+            OutPutMsgToConsle(Running_INFO,"当前执行的指令(已被解析后): "+QString::number(i+1)+" ,此指令不需要执行切割任务，是功能性指令，具体功能还没有做...");
         };
     }
 
