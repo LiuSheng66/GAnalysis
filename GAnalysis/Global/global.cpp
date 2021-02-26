@@ -29,9 +29,19 @@ void OutPutMsgToConsle(ConSleLevel level, const QString &strText, QTextEdit &Mes
 //    {
 //        return;
 //    }
+    QString strDisplay="";
+    if(level==Critical_INFO) {
+        strDisplay="错误: "+strText;
+    }else if(level==Warning_INFO){
+        strDisplay="警告: "+strText;
+    }else if(level==Running_INFO){
+        strDisplay="RUN: "+strText;
+    }else if(level==Information_INFO){
+        strDisplay="--->>"+strText;
+    }
 
     MessageDisplayWindow.moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);//把可见光标移动到消息框尾部
-    MessageDisplayWindow.append(strText);
+    MessageDisplayWindow.append(strDisplay);
 
     //选中需要显示颜色的文字
     QTextCursor cursor = MessageDisplayWindow.textCursor();
@@ -51,7 +61,7 @@ void OutPutMsgToConsle(ConSleLevel level, const QString &strText, QTextEdit &Mes
         fmt.setForeground(Qt::red);
         break;
     case Warning_INFO:
-        fmt.setForeground(QColor(255 ,185 ,15));//黄色
+        fmt.setForeground(QColor(255,140,0));//黄色
         break;
     case Running_INFO:
         fmt.setForeground(Qt::blue);

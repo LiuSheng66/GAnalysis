@@ -76,25 +76,23 @@ GCommand * GCommand::commandFrame(GCommand *begin)
 
  QStringList GCommand::splitBy(const QString &text, QString keyword)
  {
-     QStringList res;
-     res=text.split(keyword);
-     return res;
+     return text.split(keyword);
  }
 
  QStringList GCommand::splitBySentence(const QString &inText)
  {
      QString keyword="\n";
      //按换行符\n分割文本内容
-     QStringList sentenceByEnterList=splitBy(inText,keyword);
-     return sentenceByEnterList;
+     return splitBy(inText,"\n");
+//     inText.split("\n", QString::SkipEmptyParts);
  }
 
  QStringList GCommand::splitByWord(QString &inText)
  {
-     QString keyword=" ";
+//     QString keyword=" ";
      //按换行符\n分割文本内容
-     QStringList wordBySpaceList=splitBy(inText,keyword);
-     return wordBySpaceList;
+//     QStringList wordBySpaceList=splitBy(inText,keyword);
+     return splitBy(inText," ");
  }
 
  //预处理
@@ -137,3 +135,4 @@ GCommand * GCommand::commandFrame(GCommand *begin)
      }
      return coordinateResult;
  }
+

@@ -34,13 +34,26 @@ void CircularArcPTPCM::algorithmEntry()
 {
     QString strLine = QString("得到圆弧的坐标信息:(%1 ,%2) -> (%3 ,%4) ,圆心:(%5 ,%6)").arg(beginPoint.rx()).arg(beginPoint.ry()).arg(endPoint.rx()).arg(endPoint.ry()).arg(centerPoint.rx()).arg(centerPoint.ry());
     OutPutMsgToConsle(Running_INFO,"圆弧_开始连续切削算法，"+strLine);
+    //判断能否构成圆弧
     if( !JudgeIsCircularArc( beginPoint.rx(), beginPoint.ry(), endPoint.rx(), endPoint.ry(),centerPoint.rx(), centerPoint.ry()))
     {
         return;
     };
 
     //判断顺逆圆弧
-    DirectionCircular = JudgeCircularArc_Direction(centerPoint.rx(), centerPoint.ry(), beginPoint.rx(), beginPoint.ry(), endPoint.rx(), endPoint.ry());
+//    DirectionCircular = JudgeCircularArc_Direction(centerPoint.rx(), centerPoint.ry(), beginPoint.rx(), beginPoint.ry(), endPoint.rx(), endPoint.ry());
+    if(inCode==CW_ARC_WORK_CODE)//顺时针
+    {
+        DirectionCircular=false;
+    }
+    else if(inCode==ACW_ARC_WORK_CODE)//逆时针
+    {
+        DirectionCircular=true;
+    }else
+    {
+        OutPutMsgToConsle(Critical_INFO,"错误警告: 检测到不是圆弧指令（G02、G03）而执行了圆弧算法，请检查指令的解析,圆弧算法 结束!");
+        return;
+    };
 
     //平移整体，并把圆心坐标移动到原点
     nowBias=OtherToOriginalPoint(centerPoint);
@@ -134,9 +147,9 @@ void CircularArcPTPCM::CircleBegin()
         if (DirectionCircular)//逆时针
         {
             BeginCoordinate_Value = GetQuadrantJudge(Ac_X, Ac_Y);
-            OutPutMsgToConsle(Critical_INFO,"BeginCoordinate_Value:"+QString::number(BeginCoordinate_Value));
+//            OutPutMsgToConsle(Critical_INFO,"BeginCoordinate_Value:"+QString::number(BeginCoordinate_Value));
             DeviationCalChooseFun_NR(BeginCoordinate_Value, Line_Result, Ac_X, Ac_Y,Step);
-            OutPutMsgToConsle(Critical_INFO,"Ac_X, Ac_Y: "+QString::number(Ac_X)+","+QString::number(Ac_Y));
+//            OutPutMsgToConsle(Critical_INFO,"Ac_X, Ac_Y: "+QString::number(Ac_X)+","+QString::number(Ac_Y));
         }
         else//顺时针
         {

@@ -4,12 +4,13 @@
 
 #include<QMessageBox>
 //在此类中使用自己的G代码指令规则，若使用其他的指令系统可以重新继承基类指令系统开发
-
+//输出的坐标都是绝对坐标系，如果是相对坐标系，则被转化为绝对坐标系
 
 
 class MyCommand : public GCommand
 {
 public:
+    MyCommand();
     MyCommand(CodeEditor &inputPlainText);
     ~MyCommand();
 
@@ -20,9 +21,9 @@ public:
     CodeType getCodeType(const QString &cmd);
     cmdNeedPara isNeedParameter(const CodeType &cmd);//指令是否需要坐标参数配合使用
     void cmdConvertPoint(CommandStatus &cmdStatus,QStringList cmdStrList);
+    //把解析后的指令的坐标转化为绝对坐标系（如果已经是绝对坐标则不转化）
+    void holdPointAbsolute();
 
-
-public:
 
 
 protected:

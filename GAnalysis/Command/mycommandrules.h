@@ -44,7 +44,8 @@ enum CodeType{
 //系统的类型
 enum systemType{
     RELATIVE_CSYS,//相对坐标系
-    ABSOLUTE_CSYS//绝对坐标系
+    ABSOLUTE_CSYS,//绝对坐标系
+    NO_CSYS       //没有坐标系说明，但是在后面的实际计算中会默认采用绝对坐标系
 };
 
 //坐标单位
@@ -94,6 +95,7 @@ public:
     ~CommandStatus();
 
 public:
+    CodeType code;//指令
     bool isCorrect;//指令是否正确,功能还没做，先初始化为true
     systemType coordinate_System;//基于何种坐标系计算,默认使用绝对坐标系
     lengthUnit unitLen;//长度单位
@@ -101,6 +103,7 @@ public:
     lineType line;//指令含义
     bool isNeedCoordinate;//指令是否需要坐标信息
     bool isNeedFire;//是否需要切割工作
+    bool isMove;//是否需要移动
     gPoint point;//坐标信息
 };
 

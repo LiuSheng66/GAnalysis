@@ -774,7 +774,8 @@ void MainWindow::onlyAnalysis()
     isRunAnalysis=true;//设置当前程序开始运行的标志
     OutRunMsgToConsle();
     GCommand *baseCommand=NULL;//抽象类，指令解析基类
-    MyCommand *mycommand=new MyCommand(*gEditWidget);//初始化指令文本输入
+    MyCommand *mycommand=new MyCommand;
+    mycommand->setInCommandText(*gEditWidget);//初始化指令文本输入
     //判断读取到的指令系统
     if(getConfi("CommandSystem","GCommand")=="MyCommand")
     {
@@ -803,10 +804,8 @@ void MainWindow::onlyAnalysis()
     };
     isRunAnalysis=false;//设置当前程序结束运行的标志
     OutRunMsgToConsle();
-
-
-
 }
+
 void MainWindow::Setting()
 {
     SettingMainWindow *settingWindow = new SettingMainWindow(this);
@@ -875,7 +874,7 @@ void MainWindow::AlgoRunByCmd(QVector<CommandStatus *> temCmdTotal)
 
     for (int i=0;i<temCmdTotal.size();i++) {
         //当前行的指令是否需要切割工作
-        if(temCmdTotal.at(i)->isNeedFire)
+        if(temCmdTotal.at(i)->isMove)
         {
             OutPutMsgToConsle(Running_INFO,"当前需要切割的行号i: "+QString::number(i+1));
             if(temCmdTotal.at(i)->line==STR_LINE)//指令是直线切割
@@ -892,7 +891,7 @@ void MainWindow::AlgoRunByCmd(QVector<CommandStatus *> temCmdTotal)
             else if(temCmdTotal.at(i)->line==ARC_LINE)//指令是圆弧切割
             {
                 //每条指令计算轨迹之前，给当前线段赋起点，终点和圆心
-                algoDDA->setInitPoint(beginPoint,QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y),QPoint(temCmdTotal.at(i)->point.i,temCmdTotal.at(i)->point.j));
+                algoDDA->setInitPoint(beginPoint,QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y),temCmdTotal.at(i)->code, QPoint(temCmdTotal.at(i)->point.i,temCmdTotal.at(i)->point.j));
 //                OutPutMsgToConsle(Critical_INFO,"测试圆弧算法: "+QString::number(beginPoint.rx())+","+QString::number(beginPoint.ry())+"|"+QString::number(temCmdTotal.at(i)->point.x)+","+QString::number(temCmdTotal.at(i)->point.y)+"|"+QString::number(temCmdTotal.at(i)->point.i)+","+QString::number(temCmdTotal.at(i)->point.j));
                 beginPoint=QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y);//把上一次的终点赋值给下一段的开始
                 base->algorithmFrame(algoDDA);//开始计算轨迹坐标，此处根据传入的算法对象不同，实现不同的算法，多态发生
@@ -902,7 +901,7 @@ void MainWindow::AlgoRunByCmd(QVector<CommandStatus *> temCmdTotal)
             };
         }else
         {
-            OutPutMsgToConsle(Running_INFO,"当前执行的指令(已被解析后): "+QString::number(i+1)+" ,此指令不需要执行切割任务，是功能性指令，具体功能还没有做...");
+            OutPutMsgToConsle(Running_INFO,"当前执行的指令(已被解析后): "+QString::number(i+1)+" ,此指令不需要移动，是功能性指令，具体功能还没有做...");
         };
     }
 

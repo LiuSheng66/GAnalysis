@@ -22,11 +22,12 @@ void Algorithm::algorithmFrame(Algorithm *begin)
     begin->algorithmEntry();
 }
 
-void Algorithm::setInitPoint(QPoint begin, QPoint end, QPoint center)
+void Algorithm::setInitPoint(QPoint begin, QPoint end,CodeType mycode, QPoint center)
 {
     beginPoint=begin;
     endPoint=end;
     centerPoint=center;
+    inCode=mycode;
 }
 
 void Algorithm::testAlgorithmExport(QVector<QPoint> temCoordinate)
