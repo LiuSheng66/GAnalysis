@@ -30,41 +30,9 @@ void MyCommand::commandEntry()
     QStringList strList=splitBySentence(commandStrTotal);//把整篇G代码按行裁成一段一段指令
     for(int i=0;i < strList.size();i++)
     {
-//        OutPutMsgToConsle(Information_INFO,strList[i]);
          cmdFinal.push_back(createCmdByParagraph(strList[i]));//得到最后处理好的
     }
     holdPointAbsolute();//检测坐标系的绝对、相对，默认是绝对坐标系，如果是相对坐标系则转化为绝对坐标系
-
-//测试指令
-//    for(int i=0;i<cmdFinal.size();i++)
-//    {
-//        if(cmdFinal.at(i)->coordinate_System==ABSOLUTE_CSYS)
-//        {
-//            OutPutMsgToConsle(Information_INFO,QString::number(i)+"test:ABSOLUTE_CSYS");
-//        }else if(cmdFinal.at(i)->coordinate_System==RELATIVE_CSYS)//只有检测到存在相对坐标系的指令，才会把整体指令里面的移动类坐标转化
-//        {
-//            OutPutMsgToConsle(Information_INFO,QString::number(i)+"test:RELATIVE_CSYS");
-//        }else if(cmdFinal.at(i)->coordinate_System==NO_CSYS)
-//        {
-//            OutPutMsgToConsle(Information_INFO,QString::number(i)+"test:NO_CSYS");
-//        }
-//        if(cmdFinal.at(indx)->code==G99_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:G99_CODE");};
-//        if(cmdFinal.at(indx)->code==RELATIVE_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:RELATIVE_CODE");};
-//        if(cmdFinal.at(indx)->code==ABSOLUTE_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:ABSOLUTE_CODE");};
-//        if(cmdFinal.at(indx)->code==INCH_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:INCH_CODE");};
-//        if(cmdFinal.at(indx)->code==METER_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:METER_CODE");};
-//        if(cmdFinal.at(indx)->code==L_KERF_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:L_KERF_CODE");};
-//        if(cmdFinal.at(indx)->code==R_KERF_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:R_KERF_CODE");};
-//        if(cmdFinal.at(indx)->code==CANCEL_KERF_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:CANCEL_KERF_CODE");};
-//        if(cmdFinal.at(indx)->code==EMPTY_QUICKMOVE_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:EMPTY_QUICKMOVE_CODE");};
-//        if(cmdFinal.at(indx)->code==STR_LINE_WORK_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:STR_LINE_WORK_CODE");};
-//        if(cmdFinal.at(indx)->code==CW_ARC_WORK_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:CW_ARC_WORK_CODE");};
-//        if(cmdFinal.at(indx)->code==ACW_ARC_WORK_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:ACW_ARC_WORK_CODE");};
-//        if(cmdFinal.at(indx)->code==FIRE_BEGIN_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:FIRE_BEGIN_CODE");};
-//        if(cmdFinal.at(indx)->code==FIRE_END_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:FIRE_END_CODE");};
-//        if(cmdFinal.at(indx)->code==FIRE_CLOSE_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:FIRE_CLOSE_CODE");};
-//        if(cmdFinal.at(indx)->code==NO_USE_CODE){OutPutMsgToConsle(Information_INFO,QString::number(indx)+"test:NO_USE_CODE");};
-//    };
 
     OutPutMsgToConsle(Running_INFO,"指令解析: **************************** 结束 ******************************");
     OutPutMsgToConsle(Information_INFO,"指令容器的大小："+QString::number(cmdFinal.size()));
@@ -239,13 +207,17 @@ void MyCommand::holdPointAbsolute()
             {
                 if(cmdFinal.at(indx)->isMove)//只有需要移动的指令才需要转化坐标系
                 {
-                    temx=cmdFinal.at(indx)->point.x=cmdFinal.at(indx)->point.x+temx;
-                    temy=cmdFinal.at(indx)->point.y=cmdFinal.at(indx)->point.y+temy;
-                    temi=cmdFinal.at(indx)->point.i=cmdFinal.at(indx)->point.i+temi;
-                    temj=cmdFinal.at(indx)->point.j=cmdFinal.at(indx)->point.j+temj;
+                    //当前指令的坐标等于前面所有指令的坐标的累加当前指令的坐标就是当前指令的坐标
+                    if(cmdFinal.at(indx)->line==ARC_LINE)//只有圆弧的指令坐标需要计算圆心坐标
+                    {
+                        cmdFinal.at(indx)->point.i=cmdFinal.at(indx)->point.i+temx;
+                        cmdFinal.at(indx)->point.j=cmdFinal.at(indx)->point.j+temy;
+                    };
+                    temx = cmdFinal.at(indx)->point.x =cmdFinal.at(indx)->point.x+temx;
+                    temy = cmdFinal.at(indx)->point.y =cmdFinal.at(indx)->point.y+temy;
                 };
             };
-            OutPutMsgToConsle(Information_INFO,"当前指令系统采用坐标系: 相对坐标系（当然内部是采用绝对坐标系计算）");
+            OutPutMsgToConsle(Information_INFO,"当前指令系统采用坐标系: 相对坐标系（当然内部是采用绝对坐标系计算，坐标已转化）");
             return;
         }
     }

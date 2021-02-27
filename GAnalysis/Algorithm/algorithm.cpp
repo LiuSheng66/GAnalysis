@@ -80,13 +80,16 @@ int Algorithm::GetQuadrantJudge( double Point_X , double Point_Y)
 
 bool Algorithm::JudgeIsCircularArc(const int Begin_X,const int Begin_Y,const int End_X,const int End_Y,const int Center_X,const int Center_Y)
 {
+    int sqt1=(Begin_X-Center_X)*(Begin_X-Center_X)+(Begin_Y-Center_Y)*(Begin_Y-Center_Y);
+    int sqt2=(End_X-Center_X)*(End_X-Center_X)+(End_Y-Center_Y)*(End_Y-Center_Y);
      //如果起点和终点分别到圆心的举例相同，则可以构成一个圆
-     if((Begin_X-Center_X)*(Begin_X-Center_X)+(Begin_Y-Center_Y)*(Begin_Y-Center_Y)==(End_X-Center_X)*(End_X-Center_X)+(End_Y-Center_Y)*(End_Y-Center_Y))
+     if(sqt1==sqt2)
      {
          return true;//可以构成一个圆
      }else
      {
          OutPutMsgToConsle(Critical_INFO,"三个点构成圆弧检测: 此组合不能构成一个圆，请检查点的坐标.");
+         OutPutMsgToConsle(Warning_INFO,"两个计算得到的半径平方: +begin-center:"+QString::number(sqt1)+"end-center:"+QString::number(sqt2));
          return false;
      };
 }

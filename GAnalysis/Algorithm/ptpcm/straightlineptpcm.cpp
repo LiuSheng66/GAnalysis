@@ -37,7 +37,7 @@ StraightLinePTPCM::~StraightLinePTPCM()
 {
      Step=0;//每次使用
      QString strLine = QString("得到直线起始点坐标信息:(%1 ,%2) -> (%3 ,%4)").arg(beginPoint.rx()).arg(beginPoint.ry()).arg(endPoint.rx()).arg(endPoint.ry());
-     OutPutMsgToConsle(Running_INFO,"开始连续切削算法，"+strLine);
+     OutPutMsgToConsle(Running_INFO,"直线--逐点比较法: 连续切削算法计算  ** 开始  ** :"+strLine);
      //坐标平移，把起点移到从原点开始,nowBias包含了平移的xy值，
      QPointF nowBias=OtherToOriginalPoint(beginPoint);
      //实时坐标初始化
@@ -64,7 +64,7 @@ StraightLinePTPCM::~StraightLinePTPCM()
          Ac_X=Ac_X+nowBias.rx();
          Ac_Y=Ac_Y+nowBias.ry();
      }
-     OutPutMsgToConsle(Running_INFO,"直线_连续切削算法计算结束！总共步数："+QString::number(Step));
+     OutPutMsgToConsle(Running_INFO,"直线--逐点比较法: 连续切削算法计算  ** 结束  ** :总共步数："+QString::number(Step));
  }
 
  QVector<QPoint> StraightLinePTPCM::algorithmExport()

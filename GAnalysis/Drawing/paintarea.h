@@ -1,9 +1,9 @@
 #ifndef PAINTAREA_H
 #define PAINTAREA_H
 
-#include <QWidget>
+#include <QMainWindow>
 
-class PaintArea : public QWidget
+class PaintArea : public QMainWindow
 {
 public:
     PaintArea(int imageWidth,int imageHeight);
@@ -11,7 +11,7 @@ public:
 
     //坐标系的设立
     void CoordinateAxisDraw(QPainter *painterCoordinateAxis);
-
+    void beginPaint();
 protected:
     void enterEvent(QEvent *event);//鼠标进入事件
     void leaveEvent(QEvent *);//鼠标离开事件
@@ -35,6 +35,7 @@ private slots:
 public:
     QImage image;  //QImage类对象，用于在其上绘图
     QPoint  point;
+
 private:
 //    QImage m_Image;
     qreal m_ZoomValue = 1.0;//在ARM中是double，在嵌入版中是float
@@ -51,7 +52,8 @@ protected:
 signals:
 //    void mouseMoveSig(QPoint point); //鼠标移动信号，在mouseMoveEvent()事件中触发
 
-signals:
+public:
+//    QPainter *normalPainter;//正常的画笔
 
 };
 

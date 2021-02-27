@@ -19,12 +19,10 @@ PaintArea::PaintArea(int imageWidth,int imageHeight)
     YCentre=500;
 
 
+//    image=QImage(imageWidth,imageHeight,QImage::Format_RGB32);//画布初始化大小设为1000*1000，使用32位颜色
     image=QImage(imageWidth,imageHeight,QImage::Format_RGB32);//画布初始化大小设为1000*1000，使用32位颜色
+    image.fill(QColor(255,255,255));//画布初始化位白色
 
-    QRgb backGroundColor;
-    backGroundColor=qRgb(255,0,255);//画布初始化位白色
-    image.fill(backGroundColor);
-    setMouseTracking(true);
 }
 PaintArea::~PaintArea()
 {
@@ -45,8 +43,12 @@ void PaintArea::paintEvent(QPaintEvent *event)
     CoordinateAxisDraw(&painter);
 //    ChooseWayDialog::ChooseWayRun=1;
 //    ByAlgorithmDraw(&MainAlgorithmFunction::AllCoordinate_array,&painter);
-
+    painter.drawLine(0,0,1200,300);
     painter.end();
+}
+
+void PaintArea::beginPaint()
+{
 }
 
 //*****************************************图像缩放等功能********************************//
@@ -91,26 +93,6 @@ void PaintArea::leaveEvent(QEvent *)
 
 void PaintArea::mouseMoveEvent(QMouseEvent *event)
 {
-
-
-//    point=event->pos();
-//    emit mouseMovePoint(point);
-//    emit mouseMoveSig(point);
-//    PaintArea::mouseMoveEvent(event);
-
-//    if (!m_Pressed)
-//        return QWidget::mouseMoveEvent(event);
-
-//    this->setCursor(Qt::SizeAllCursor);
-//    QPoint pos = event->pos();
-//    int xPtInterval = pos.x() - m_OldPos.x();
-//    int yPtInterval = pos.y() - m_OldPos.y();
-
-//    m_XPtInterval += xPtInterval;
-//    m_YPtInterval += yPtInterval;
-
-//    m_OldPos = pos;
-//    this->update();
 
 }
 void PaintArea::mousePressEvent(QMouseEvent *event)

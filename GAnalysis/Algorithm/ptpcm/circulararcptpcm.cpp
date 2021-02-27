@@ -33,13 +33,9 @@ CircularArcPTPCM::~CircularArcPTPCM()
 void CircularArcPTPCM::algorithmEntry()
 {
     QString strLine = QString("得到圆弧的坐标信息:(%1 ,%2) -> (%3 ,%4) ,圆心:(%5 ,%6)").arg(beginPoint.rx()).arg(beginPoint.ry()).arg(endPoint.rx()).arg(endPoint.ry()).arg(centerPoint.rx()).arg(centerPoint.ry());
-    OutPutMsgToConsle(Running_INFO,"圆弧_开始连续切削算法，"+strLine);
+    OutPutMsgToConsle(Running_INFO,"圆弧--逐点比较法: 连续切削算法计算  ** 开始  ** :"+strLine);
     //判断能否构成圆弧
-    if( !JudgeIsCircularArc( beginPoint.rx(), beginPoint.ry(), endPoint.rx(), endPoint.ry(),centerPoint.rx(), centerPoint.ry()))
-    {
-        return;
-    };
-
+    if( !JudgeIsCircularArc( beginPoint.rx(), beginPoint.ry(), endPoint.rx(), endPoint.ry(),centerPoint.rx(), centerPoint.ry())){return;};
     //判断顺逆圆弧
 //    DirectionCircular = JudgeCircularArc_Direction(centerPoint.rx(), centerPoint.ry(), beginPoint.rx(), beginPoint.ry(), endPoint.rx(), endPoint.ry());
     if(inCode==CW_ARC_WORK_CODE)//顺时针
@@ -70,7 +66,7 @@ void CircularArcPTPCM::algorithmEntry()
     EndCoordinate_Value=GetQuadrantJudge(endPoint.rx(), endPoint.ry());
 
     CircleBegin();
-    OutPutMsgToConsle(Running_INFO,"圆弧_连续切削算法计算结束！总共步数："+QString::number(Step));
+    OutPutMsgToConsle(Running_INFO,"圆弧--逐点比较法: 连续切削算法计算  ** 结束  ** :总共步数："+QString::number(Step));
 }
 
 QVector<QPoint> CircularArcPTPCM::algorithmExport()

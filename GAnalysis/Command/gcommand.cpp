@@ -82,8 +82,11 @@ GCommand * GCommand::commandFrame(GCommand *begin)
  QStringList GCommand::splitBySentence(const QString &inText)
  {
      QString keyword="\n";
+
+//     QString dsg=
      //按换行符\n分割文本内容
-     return splitBy(inText,"\n");
+//     return splitBy(inText,"\n");
+     return inText.split("\n",QString::SkipEmptyParts);
 //     inText.split("\n", QString::SkipEmptyParts);
  }
 

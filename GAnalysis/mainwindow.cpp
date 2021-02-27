@@ -749,19 +749,10 @@ void MainWindow::CloseFile()
 
 void MainWindow::beginAnalysis()
 {
-    const QIcon PauseAnalysActIcon =QIcon(":/image/icon/pauseAnalysis.png");
-    const QIcon PauseAnalysActIcon1 =QIcon(":/image/icon/beginanalysis.png");
-    analysisAndDawAct ->setIcon(PauseAnalysActIcon);
-    OutPutMsgToConsle(Warning_INFO,"pauseAnalysis");
+//    onlyAnalysis();//算法解析
+//    area->beginPaint();
+    area->image.save("C://Users//Administrator//Desktop//homework//CONFIG1.png");
 
-//    analysisAndDawAct->setStatusTip(QStringLiteral("暂停"));
-//    QTime dieTime = QTime::currentTime().addMSecs(3);//秒
-//    while( QTime::currentTime() < dieTime )
-//    {
-//        ;
-//    };
-    analysisAndDawAct ->setIcon(PauseAnalysActIcon1);
-    OutPutMsgToConsle(Warning_INFO,"beginAnalysis");
 }
 void MainWindow::onlyAnalysis()
 {
