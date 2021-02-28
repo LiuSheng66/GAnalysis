@@ -10,6 +10,7 @@
 #include<QLabel>
 #include<QPushButton>
 #include"syntax/codeeditor.h"
+#include"Drawing/mygraphicsview.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -60,6 +61,8 @@ private:
     QTextEdit *textEditGCode;//G代码编辑窗口部件
     CodeEditor *gEditWidget;//使用自定义的G代码编辑界面
     QTextEdit *textDisplayGCode;//G代码显示窗口部件
+
+    MyGraphicsView *graphicsView;
 public:
 //    QTextEdit *textOutput;//输出窗口部件
     //    GDebug *outMessageDisplay;//按照继承QTextEdit自定义的类，来显示程序的各种消息
@@ -73,6 +76,8 @@ private:
     QAction *closeAct;//删除单枪文件并对编辑区域清屏
     QAction *saveFileAct;//保存当前文件
     QAction *saveAsFileAct;//另存为当前文件
+
+    QAction *workspaceViewAct;//工作区显示与否
 
     QAction *analysisAndDawAct;//解析并绘图
     QAction *analysisAct;//仅解析
@@ -111,12 +116,9 @@ private:
 
     void Setting();
 public:
-    void removeAllDock();
-    void showDock(const QList<int>& index = QList<int>());
     void setTextColor(QTextEdit *textEdit,QColor *color);//设置文字编辑框的文字颜色
-    void outCurrentWorkMsg();//再消息输出框中，（当点击运行后）显示出当前的工作G代码文件和当前开始时间
     void ConvertShowOrHide(QWidget *widget);//对输入的窗口，进行切换窗口的显示或隐藏
-    void AlgoRunByCmd(QVector<CommandStatus*> temCmdTotal);//把解析后的指令和计算算法联系上，并按照指令计算
+    void AlgoRunByCmd(QVector<CommandStatus*> temCmdTotal, TotalAlgorithmType algotype);//把解析后的指令和计算算法联系上，并按照指令计算
 
 public slots:
     //槽函数

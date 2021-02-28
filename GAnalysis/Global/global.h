@@ -22,6 +22,12 @@ enum ConSleLevel{
     Information_INFO
 };
 
+//算法的类型
+enum TotalAlgorithmType{
+    ZhuDian_Algo,
+    DDA_Algo
+};
+
 //以后新增其他规则的指令系统需要在里面添加
 //enum CmdSystem{
 //    MyCommandSystem//当前默认的指令规则系统

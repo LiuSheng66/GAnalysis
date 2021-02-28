@@ -8,7 +8,6 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 #include <QStyleOption>
-#include <QPainter>
 #include <QFileDialog>
 
 
@@ -37,13 +36,15 @@ void PaintArea::paintEvent(QPaintEvent *event)
     //painter.setWindow(500,500,500,500);
 
     //画布的绘画
-    painter.drawImage(0,0,image);//画布在哪里开始画，且它的大小及颜色
+//    MyImagePaint *asd=new MyImagePaint(520,300,QImage::Format_RGB32);
+//    asd->fill(QColor(255,255,255));//画布初始化位白色
+//    painter.drawImage(0,0,*asd);//画布在哪里开始画，且它的大小及颜色
 
     //绘画坐标系
-    CoordinateAxisDraw(&painter);
+//    CoordinateAxisDraw(&painter);
 //    ChooseWayDialog::ChooseWayRun=1;
 //    ByAlgorithmDraw(&MainAlgorithmFunction::AllCoordinate_array,&painter);
-    painter.drawLine(0,0,1200,300);
+//    painter.drawLine(0,0,1200,300);
     painter.end();
 }
 

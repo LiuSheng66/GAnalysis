@@ -4,8 +4,6 @@
 #include<QMessageBox>
 
 CircularArcPTPCM::CircularArcPTPCM():
-    Ac_X (0),
-    Ac_Y(0),
     Line_Result(0),
     Step(0)
 {
@@ -13,8 +11,6 @@ CircularArcPTPCM::CircularArcPTPCM():
 }
 
 CircularArcPTPCM::CircularArcPTPCM(QPoint begin,QPoint end,QPoint center):
-    Ac_X (0),
-    Ac_Y(0),
     Line_Result(0),
     Step(0)
 {
@@ -51,18 +47,18 @@ void CircularArcPTPCM::algorithmEntry()
         return;
     };
 
-    //平移整体，并把圆心坐标移动到原点
-    nowBias=OtherToOriginalPoint(centerPoint);
+    //假设把圆心移到原点得到偏差值
+    shiftValue=-centerPoint;
     //把终点坐标和起点坐标按照圆心坐标一起同步位移
-    endPoint.rx()=endPoint.rx()+nowBias.rx();
-    endPoint.ry()=endPoint.ry()+nowBias.ry();
+    moveToTargetPoint(endPoint,false,shiftValue);
+    moveToTargetPoint(beginPoint,false,shiftValue);
     //实时坐标初始化
-    Ac_X = beginPoint.rx()= beginPoint.rx()+nowBias.rx();
-    Ac_Y = beginPoint.ry()= beginPoint.ry()+nowBias.ry();
-    Line_Result = Ac_X * Ac_X + Ac_Y * Ac_Y - ((Ac_X)*(Ac_X)+(Ac_Y)*(Ac_Y));//最初偏差计算公式
+    Ac_XYPoint=beginPoint;
 
+    //最初偏差计算公式
+    Line_Result = Ac_XYPoint.rx() * Ac_XYPoint.rx() + Ac_XYPoint.ry() * Ac_XYPoint.ry() - ((Ac_XYPoint.rx())*(Ac_XYPoint.rx())+(Ac_XYPoint.ry())*(Ac_XYPoint.ry()));
     //计算起点的所在象限
-    BeginCoordinate_Value = GetQuadrantJudge(Ac_X, Ac_Y);
+    BeginCoordinate_Value = GetQuadrantJudge(Ac_XYPoint.rx(), Ac_XYPoint.ry());
     EndCoordinate_Value=GetQuadrantJudge(endPoint.rx(), endPoint.ry());
 
     CircleBegin();
@@ -138,25 +134,21 @@ void CircularArcPTPCM::DeviationCalChooseFun_SR
 void CircularArcPTPCM::CircleBegin()
 {
     Step = 0; //步骤需要初始化，每轮计算结束，在下一轮里面会累计
-    while(!(Ac_X== endPoint.rx() &&Ac_Y== endPoint.ry()))
+    while(!(Ac_XYPoint.rx()== endPoint.rx() &&Ac_XYPoint.ry()== endPoint.ry()))
     {
         if (DirectionCircular)//逆时针
         {
-            BeginCoordinate_Value = GetQuadrantJudge(Ac_X, Ac_Y);
-//            OutPutMsgToConsle(Critical_INFO,"BeginCoordinate_Value:"+QString::number(BeginCoordinate_Value));
-            DeviationCalChooseFun_NR(BeginCoordinate_Value, Line_Result, Ac_X, Ac_Y,Step);
-//            OutPutMsgToConsle(Critical_INFO,"Ac_X, Ac_Y: "+QString::number(Ac_X)+","+QString::number(Ac_Y));
+            BeginCoordinate_Value = GetQuadrantJudge(Ac_XYPoint.rx(), Ac_XYPoint.ry());
+            DeviationCalChooseFun_NR(BeginCoordinate_Value, Line_Result, Ac_XYPoint.rx(), Ac_XYPoint.ry(),Step);
         }
         else//顺时针
         {
-            BeginCoordinate_Value = GetQuadrantJudge(Ac_X, Ac_Y);
-            DeviationCalChooseFun_SR(BeginCoordinate_Value, Line_Result, Ac_X, Ac_Y,Step);
+            BeginCoordinate_Value = GetQuadrantJudge(Ac_XYPoint.rx(), Ac_XYPoint.ry());
+            DeviationCalChooseFun_SR(BeginCoordinate_Value, Line_Result, Ac_XYPoint.rx(), Ac_XYPoint.ry(),Step);
         }
-        Ac_X= Ac_X - nowBias.rx();
-        Ac_Y= Ac_Y - nowBias.ry();
-        transitionCoordinate.push_back(QPoint(Ac_X,Ac_Y));//把临时Qpoint数据放在SL_ZD_array里面
-        Ac_X= Ac_X + nowBias.rx();
-        Ac_Y= Ac_Y + nowBias.ry();
+        moveToTargetPoint(Ac_XYPoint,true,shiftValue);//复原
+        transitionCoordinate.push_back(Ac_XYPoint);//把临时Qpoint数据放在SL_ZD_array里面
+        moveToTargetPoint(Ac_XYPoint,false,shiftValue);
     }
 
 }

@@ -22,13 +22,18 @@ public:
     void setInitPoint(QPoint begin, QPoint end, CodeType mycode=NO_USE_CODE, QPoint center=QPoint(0,0));//手动设置算法计算的起始点
 
     void testAlgorithmExport(QVector<QPoint> temCoordinate);//用于测试，把当前段的计算的临时坐标输出到消息框
-    QPoint OtherToOriginalPoint(QPoint &point);//把所给坐标平移到原点，并返回平移值
+    void moveToTargetPoint (QPoint &point,bool revertFlag,QPoint moveValue);//按照所给的平移标识符，把相关点按照偏差值平移
+    void moveToTargetPoint(int &Ac_X, int &Ac_Y, bool revertFlag, QPoint moveValue);
+    void revertPointToMove(QPoint &point,QPoint shift);//按照类里面存在的平移值把当前输入点还原到平移前的坐标
     int GetQuadrantJudge(double Point_X, double Point_Y);//得到当前点的所在象限
+private:
+
 public:
 //    QPoint beginPoint;//起点坐标
 //    QPoint endPoint;//结束坐标
 //     int Begin_X, Begin_Y;//起点坐标
 //     int End_X, End_Y;//终点坐标
+
 
     QPoint beginPoint;//算法计算开始坐标点
     QPoint endPoint;//算法计算终点
@@ -42,6 +47,7 @@ public:
     //判断根据起点，终点判断圆弧是顺时针还是逆时针
     //默认圆心在原点,返回值1代表逆时针；0代表顺圆；当三点共线时，默认0顺圆
     int JudgeCircularArc_Direction(int Center_X, int Center_Y, int Begin_X, int Begin_Y, int End_X, int End_Y);
+
 };
 
 #endif // ALGORITHM_H

@@ -4,7 +4,7 @@
 QTextEdit *exportMessage;
 
 QString addressConfiStr="C://Users//Administrator//Desktop//homework//CONFIG.ini";
-double pulseEquivalent=1.00;//初始化脉冲当量为0.01mm，根据需要可以更改
+double pulseEquivalent=1;//初始化脉冲当量为0.01mm，根据需要可以更改
 QString workFileNameAndFath="";//设置默认工作G代码的文件名为空
 bool isRunAnalysis=false;//作为程序是否开始解析的信号标志
 QVector<QPoint> allCoordinateVector(0);//轨迹总坐标容器大小默认为0

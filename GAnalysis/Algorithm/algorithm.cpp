@@ -41,18 +41,51 @@ void Algorithm::testAlgorithmExport(QVector<QPoint> temCoordinate)
     };
 }
 
-QPoint Algorithm::OtherToOriginalPoint(QPoint &point)
+void Algorithm::moveToTargetPoint (QPoint &point,bool revertFlag,QPoint moveValue)
 {
-    QPoint ZeroBias=QPoint(0,0);
-    if (point.rx() == 0 && point.ry() == 0)
-    {
-    //	cout << "此坐标已经是原点坐标，不需要再转化到原点\n";
-    }
-    ZeroBias.rx() = -point.rx();
-    ZeroBias.ry() = -point.ry();
+//    if (point.rx() == 0 && point.ry() == 0)
+//    {
+//    //	cout << "此坐标已经是原点坐标，不需要再转化到原点\n";
+//        return QPoint(0,0);
+//    }
 
-    point.rx() = point.ry() = 0;//把当前点置零
-        return ZeroBias;//返回按照当前点置零，其他点需要平移的坐标
+    if(!revertFlag)//如果不复原，则平移
+    {
+        point.rx()=point.rx() + moveValue.rx();
+        point.ry()=point.ry() + moveValue.ry();
+    }else//复原
+    {
+        point.rx()=point.rx() - moveValue.rx();
+        point.ry()=point.ry() - moveValue.ry();
+    }
+
+
+}
+
+void Algorithm::moveToTargetPoint (int &Ac_X,int &Ac_Y,bool revertFlag,QPoint moveValue)
+{
+//    if (point.rx() == 0 && point.ry() == 0)
+//    {
+//    //	cout << "此坐标已经是原点坐标，不需要再转化到原点\n";
+//        return QPoint(0,0);
+//    }
+
+    if(!revertFlag)//如果不复原，则平移
+    {
+        Ac_X=Ac_X + moveValue.rx();
+        Ac_Y=Ac_Y + moveValue.ry();
+    }else//复原
+    {
+        Ac_X=Ac_X - moveValue.rx();
+        Ac_Y=Ac_Y - moveValue.ry();
+    }
+
+
+}
+
+void Algorithm::revertPointToMove(QPoint &point, QPoint shift)
+{
+    point=point-shift;
 }
 
 int Algorithm::GetQuadrantJudge( double Point_X , double Point_Y)

@@ -17,12 +17,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Algorithm/DDA/circulararcdda.cpp \
+    Algorithm/DDA/straightlinedda.cpp \
     Algorithm/algorithm.cpp \
     Algorithm/ptpcm/circulararcptpcm.cpp \
     Algorithm/ptpcm/straightlineptpcm.cpp \
     Command/gcommand.cpp \
     Command/mycommand.cpp \
     Command/mycommandrules.cpp \
+    Drawing/mygraphicsview.cpp \
     Drawing/paintarea.cpp \
     Global/global.cpp \
     main.cpp \
@@ -36,12 +39,15 @@ SOURCES += \
 
 
 HEADERS += \
+    Algorithm/DDA/circulararcdda.h \
+    Algorithm/DDA/straightlinedda.h \
     Algorithm/algorithm.h \
     Algorithm/ptpcm/circulararcptpcm.h \
     Algorithm/ptpcm/straightlineptpcm.h \
     Command/gcommand.h \
     Command/mycommand.h \
     Command/mycommandrules.h \
+    Drawing/mygraphicsview.h \
     Drawing/paintarea.h \
     Global/global.h \
     mainwindow.h \

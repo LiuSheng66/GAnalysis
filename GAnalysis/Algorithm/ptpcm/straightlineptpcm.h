@@ -7,11 +7,12 @@ class StraightLinePTPCM:public Algorithm
 {
 private:
 
-    int Ac_X, Ac_Y;//实时坐标
     int Line_Result;//每一次计算的偏差判定值
     int Step;
 
-
+    //因为算法都是按照原点来计算的，在输入其他起点时，都需要把起点平移到原点计算
+    QPoint shiftValue;//平移值，point.x先X轴移动距离；point.y先Y轴移动距离
+    QPoint Ac_XYPoint;//轨迹实时坐标
 
 public:
 
@@ -24,8 +25,7 @@ public:
     virtual void algorithmEntry();//当前算法的入口
     virtual QVector<QPoint> algorithmExport();//算法的坐标输出
 
-    //直线最初偏差计算公式
-    void Deviation_Cal_SL();
+
 //    QPoint returnAC_array();
 
     //根据象限值，选择执行的象限偏差计算函数

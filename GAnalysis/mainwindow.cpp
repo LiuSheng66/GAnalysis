@@ -18,8 +18,12 @@
 #include"setting/settingmainwindow.h"
 #include"Algorithm/ptpcm/straightlineptpcm.h"
 #include"Algorithm/ptpcm/circulararcptpcm.h"
+#include"Algorithm/DDA/straightlinedda.h"
+#include"Algorithm/DDA/circulararcdda.h"
 #include"Global/global.h"
 #include<QVector>
+
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -143,29 +147,57 @@ void MainWindow::setLayout()
 
 //    splitDockWidget(dockWidget_1,dockWidget_2,Qt::Horizontal);
 
-    area=new PaintArea(100,100);//按照当前的窗口大小初始化创建多大的画布
-    scrollArea=new QScrollArea(this);//对scrollArea实例化分配空间
+//    area=new PaintArea(100,100);//按照当前的窗口大小初始化创建多大的画布
+//    scrollArea=new QScrollArea(this);//对scrollArea实例化分配空间
 
-    //如果把画布的存放空间跟画布大小一致，那么画布的大小设置跟画布空间大小不一致就看不出来了
-    //使用调色板设置背景颜色为深灰色(RGB(74,75,75)十进制)
-    QPalette scrollAreaBackgroundpal=this->palette();
-    scrollAreaBackgroundpal.setColor(QPalette::Background,QColor(0,255,255));
-    scrollArea->setPalette(scrollAreaBackgroundpal);
-//    scrollArea->setBackgroundRole(QPalette::Dark);//scrollArea对象的背景色设置为Dark
+//    //如果把画布的存放空间跟画布大小一致，那么画布的大小设置跟画布空间大小不一致就看不出来了
+//    //使用调色板设置背景颜色为深灰色(RGB(74,75,75)十进制)
+//    QPalette scrollAreaBackgroundpal=this->palette();
+//    scrollAreaBackgroundpal.setColor(QPalette::Background,QColor(0,255,255));
+//    scrollArea->setPalette(scrollAreaBackgroundpal);
+////    scrollArea->setBackgroundRole(QPalette::Dark);//scrollArea对象的背景色设置为Dark
 
 
-    scrollArea->setWidget(area) ;//将画布添加到scrollArea中
-    scrollArea->setGeometry(0,0,this->width(),this->height());//scrollArea的布局(左上角定位x,左上角定位y, 外框宽度，外框高度)
-    scrollArea->widget()->setGeometry(0,0,this->width(),this->height());//用于填充绘画对象的空间大小
-    QPalette scrollAreaWidgetBackgroundpal=this->palette();
-    scrollAreaWidgetBackgroundpal.setColor(QPalette::Background,QColor(0,255,0));
-    scrollArea->widget()->setPalette(scrollAreaWidgetBackgroundpal);
-    scrollArea->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored);
-    scrollArea->widget()->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored);
+//    scrollArea->setWidget(area) ;//将画布添加到scrollArea中
+//    scrollArea->setGeometry(0,0,this->width(),this->height());//scrollArea的布局(左上角定位x,左上角定位y, 外框宽度，外框高度)
+//    scrollArea->widget()->setGeometry(0,0,this->width(),this->height());//用于填充绘画对象的空间大小
+//    QPalette scrollAreaWidgetBackgroundpal=this->palette();
+//    scrollAreaWidgetBackgroundpal.setColor(QPalette::Background,QColor(0,255,0));
+//    scrollArea->widget()->setPalette(scrollAreaWidgetBackgroundpal);
+//    scrollArea->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored);
+//    scrollArea->widget()->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored);
+
 //    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);//隐藏横向滚动条
 //    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);//隐藏竖向滚动条
 //    scrollArea->widget()->setMinimumSize(area->image.width(),area->image.height());//根据画布的大小初始化scrollArea的内部空间
-    setCentralWidget(scrollArea);
+
+//    QGraphicsScene scene;
+//    QGraphicsView view(&scene);
+//    view.show();
+
+//    // a blue background
+//    scene.setBackgroundBrush(Qt::blue);
+
+//    // a gradient background
+//    QRadialGradient gradient(0, 0, 10);
+//    gradient.setSpread(QGradient::RepeatSpread);
+//    scene.setBackgroundBrush(gradient);
+//    graphicsScene=new MyGraphicsScene();
+     graphicsView = new MyGraphicsView();
+//    graphicsView->setGeometry(QRect(0, 0, 1041, 721));
+//     scene=new QGraphicsScene;
+//    scene->setSceneRect(QRectF(0,0,100,100));//此属性保存场景矩形
+//    scene->setBackgroundBrush(QBrush(QColor(207, 207 ,207)));//设置背景色
+
+//    QGraphicsLineItem *lineItem1=new QGraphicsLineItem;
+//    lineItem1->setLine(-200,65,-100,65);//画一条线
+//    lineItem1->setPen(QPen(QBrush(QColor("green")),5));
+
+//    scene->addItem(lineItem1);
+//    graphicsView->setScene(scene);
+
+
+    setCentralWidget(graphicsView);
 
 
 
@@ -205,6 +237,14 @@ void MainWindow::CreateActions()//实例化下拉菜单功能
     closeAct->setStatusTip(QStringLiteral("删除G代码文件并清屏"));
     openFileAct->setShortcuts(QKeySequence::Open);//打开快捷键
     connect( closeAct, &QAction::triggered, this, &MainWindow::CloseFile);
+    //**************************************************************************************************//
+    //*************************************    视图显示相关    *********************************************//
+    workspaceViewAct = new QAction(QStringLiteral(" 工作区"), this);
+    connect(workspaceViewAct, &QAction::triggered,[=](){
+                     if(workSpaceDockWidget->isHidden())//隐藏
+                     { workSpaceDockWidget->show();}else
+                     {workSpaceDockWidget->hide();};});
+
 
     //**************************************************************************************************//
     //*************************************    数据执行绘图相关    *********************************************//
@@ -276,6 +316,8 @@ void MainWindow::CreatMenuBar()
     fileMenu->addAction(closeSystemAct);
 
     editMenu->addAction(settingAct);
+
+    viewMenu->addAction(workspaceViewAct);
 
     analysisMenu->addAction(analysisAndDawAct);
     analysisMenu->addAction(analysisAct);
@@ -377,35 +419,6 @@ void MainWindow::CreateStatusbar()
         ConvertShowOrHide(outPutdockWidget);
     });
 
-}
-
-
-// 移除并隐藏所有的dock
-void MainWindow::removeAllDock()
-{
-    for(int i=0;i<1;++i)
-    {
-        removeDockWidget(m_docks[i]);
-    }
-}
-
-// 显示指定序号的dock
-// index 指定序号，如果不指定，则会显示所有
-void MainWindow::showDock(const QList<int>& index )
-{
-    if (index.isEmpty())
-    {
-        for(int i=0;i<1;++i)
-        {
-            m_docks[i]->show();
-        }
-    }
-    else
-    {
-        foreach (int i, index) {
-            m_docks[i]->show();
-        }
-    }
 }
 
 void MainWindow::TestFun()
@@ -744,14 +757,27 @@ void MainWindow::CloseFile()
     workSpaceDockWidget->setPalette(*workSpacePal);
     textEditGCode->setStyleSheet("QTextEdit { background: rgb(190,190,190) }");
 
-
+    graphicsView->clearDraw();
+    graphicsView->creatXYAxis();
 }
 
 void MainWindow::beginAnalysis()
 {
 //    onlyAnalysis();//算法解析
 //    area->beginPaint();
-    area->image.save("C://Users//Administrator//Desktop//homework//CONFIG1.png");
+//    area->image.save("C://Users//Administrator//Desktop//homework//CONFIG1.png");
+
+//    lineItem12->setLine(-250,35,-120,65);//画一条线
+//    lineItem12->setLine(0,35,-10,65);//画一条线
+//    QColor color = QColorDialog::getColor(Qt::red,nullptr, QString("颜色对话框"),QColorDialog::ShowAlphaChannel);
+//        qDebug() << "color: " << color;
+//    lineItem12->setPen(QPen(QBrush(color),1));
+//    lineItem12->setPen(QPen(QBrush(QColor("green")),1));
+
+//    scene->addItem(lineItem12);
+    onlyAnalysis();
+    graphicsView->drawCoordinate(allCoordinateVector);
+
 
 }
 void MainWindow::onlyAnalysis()
@@ -771,24 +797,21 @@ void MainWindow::onlyAnalysis()
     if(getConfi("CommandSystem","GCommand")=="MyCommand")
     {
         OutPutMsgToConsle(Warning_INFO,"MainWindow::onlyAnalysis(): 读取到的指令解析系统为 MyCommand");
-//第二步，按照解析后的指令，通过匹配算法进行计算
+//第二步，按照解析后的指令，通过匹配算法进行计算,得到轨迹坐标
 //        mycommand->commandExport();
         if(getConfi("algorithmSet","algorithmWay")=="ZhuDian")//但是逐点比较法时
         {
             OutPutMsgToConsle(Warning_INFO,"读取到当前执行算法为:逐点比较法");
-//            outCurrentWorkMsg();
-            AlgoRunByCmd(baseCommand->commandFrame(mycommand)->commandExport());//先按照输入的文本指令得到解析后的指令，再按照指令执行算法计算，得到总的轨迹坐标
+            AlgoRunByCmd(baseCommand->commandFrame(mycommand)->commandExport(),ZhuDian_Algo);//先按照输入的文本指令得到解析后的指令，再按照指令执行算法计算，得到总的轨迹坐标
             OutPutMsgToConsle(Running_INFO,"按照指令和算法计算总坐标，结束！");
-//第三步，根据算法计算后的坐标轨迹进行输出（绘画，坐标输出，文件输出）
-
         }
         else if(getConfi("algorithmSet","algorithmWay")=="DDA")//按照DDA算法来执行相关计算
         {
-            OutPutMsgToConsle(Warning_INFO,"读取到当前执行算法为:DDA(数字积分法)，但由于尚未添加相关算法，暂不执行，结束");
-            return;
+            OutPutMsgToConsle(Warning_INFO,"读取到当前执行算法为:DDA");
+            AlgoRunByCmd(baseCommand->commandFrame(mycommand)->commandExport(),DDA_Algo);//先按照输入的文本指令得到解析后的指令，再按照指令执行算法计算，得到总的轨迹坐标
+            OutPutMsgToConsle(Running_INFO,"按照指令和算法计算总坐标，结束！");
         };
-    }
-    else
+    }else
     {
         OutPutMsgToConsle(Critical_INFO,"MainWindow::onlyAnalysis(): 没有读取到具体的指令解析系统，程序终止！");
         return;//没有读取到指令系统则直接结束整体所有工作
@@ -834,12 +857,6 @@ void MainWindow::setTextColor( QTextEdit *textEdit,QColor *color) {
     textEdit->setPalette(textEditGCodePal);
 }
 
-void MainWindow::outCurrentWorkMsg()
-{
-    QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
-
-    OutPutMsgToConsle(Running_INFO,time.toString("hh:mm:ss"));
-}
 
 void MainWindow::ConvertShowOrHide(QWidget *widget)
 {
@@ -854,48 +871,92 @@ void MainWindow::ConvertShowOrHide(QWidget *widget)
 }
 
 //把解析后的指令，按照一种确定的切割算法，计算出轨迹坐标
-void MainWindow::AlgoRunByCmd(QVector<CommandStatus *> temCmdTotal)
+void MainWindow::AlgoRunByCmd(QVector<CommandStatus *> temCmdTotal,TotalAlgorithmType algotype)
 {
     allCoordinateVector.resize(0);//每次需要计算一整份指令文本，需要提前把轨迹坐标总容器置0，排除前一轮计算的结果干扰
     Algorithm *base=NULL;
 
-    StraightLinePTPCM *algoPTPCM=new StraightLinePTPCM();
-    CircularArcPTPCM *algoDDA=new CircularArcPTPCM();
+    StraightLinePTPCM *algoLinePTPCM=new StraightLinePTPCM();
+    CircularArcPTPCM *algoArcPTPCM=new CircularArcPTPCM();
+    StraightLineDDA *algoLineDDA=new StraightLineDDA();
+    CircularArcDDA *algoArcDDA = new CircularArcDDA();
+
     QPoint beginPoint(0,0);//整体的轨迹坐标都是从（0,0）开始的
 
-    for (int i=0;i<temCmdTotal.size();i++) {
-        //当前行的指令是否需要切割工作
-        if(temCmdTotal.at(i)->isMove)
+    switch (algotype) {
+    case ZhuDian_Algo:
+    {
+        for (int i=0;i<temCmdTotal.size();i++)
         {
-            OutPutMsgToConsle(Running_INFO,"当前需要切割的行号i: "+QString::number(i+1));
-            if(temCmdTotal.at(i)->line==STR_LINE)//指令是直线切割
+            //当前行的指令是否需要切割工作
+            if(temCmdTotal.at(i)->isMove)
             {
-                //每条指令计算轨迹之前，给当前线段赋起点和终点
-                algoPTPCM->setInitPoint(beginPoint,QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y));
-                beginPoint=QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y);//把上一次的终点赋值给下一段的开始
-                base->algorithmFrame(algoPTPCM);//开始计算轨迹坐标，此处根据传入的算法对象不同，实现不同的算法，多态发生
+                OutPutMsgToConsle(Running_INFO,"当前需要切割的行号i: "+QString::number(i+1));
+                if(temCmdTotal.at(i)->line==STR_LINE)//指令是直线切割
+                {
+                    //每条指令计算轨迹之前，给当前线段赋起点和终点
+                    algoLinePTPCM->setInitPoint(beginPoint,QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y));
+                    beginPoint=QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y);//把上一次的终点赋值给下一段的开始
+                    base->algorithmFrame(algoLinePTPCM);//开始计算轨迹坐标，此处根据传入的算法对象不同，实现不同的算法，多态发生
 
-                allCoordinateVector<<(algoPTPCM->algorithmExport());//把当前线段的临时坐标添加到总的坐标容器里
-                OutPutMsgToConsle(Information_INFO,"直线_切割算法计算后，此次及之前坐标累加的容器大小: "+QString::number(allCoordinateVector.size()));
-//                base->testAlgorithmExport(algoPTPCM->algorithmExport());//输出当前的临时坐标
-            }
-            else if(temCmdTotal.at(i)->line==ARC_LINE)//指令是圆弧切割
+                    allCoordinateVector<<(algoLinePTPCM->algorithmExport());//把当前线段的临时坐标添加到总的坐标容器里
+                    OutPutMsgToConsle(Information_INFO,"直线_切割算法计算后，此次及之前坐标累加的容器大小: "+QString::number(allCoordinateVector.size()));
+    //                base->testAlgorithmExport(algoPTPCM->algorithmExport());//输出当前的临时坐标
+                }
+                else if(temCmdTotal.at(i)->line==ARC_LINE)//指令是圆弧切割
+                {
+                    //每条指令计算轨迹之前，给当前线段赋起点，终点和圆心
+                    algoArcPTPCM->setInitPoint(beginPoint,QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y),temCmdTotal.at(i)->code, QPoint(temCmdTotal.at(i)->point.i,temCmdTotal.at(i)->point.j));
+    //                OutPutMsgToConsle(Critical_INFO,"测试圆弧算法: "+QString::number(beginPoint.rx())+","+QString::number(beginPoint.ry())+"|"+QString::number(temCmdTotal.at(i)->point.x)+","+QString::number(temCmdTotal.at(i)->point.y)+"|"+QString::number(temCmdTotal.at(i)->point.i)+","+QString::number(temCmdTotal.at(i)->point.j));
+                    beginPoint=QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y);//把上一次的终点赋值给下一段的开始
+                    base->algorithmFrame(algoArcPTPCM);//开始计算轨迹坐标，此处根据传入的算法对象不同，实现不同的算法，多态发生
+
+                    allCoordinateVector<<(algoArcPTPCM->algorithmExport());//把当前线段的临时坐标添加到总的坐标容器里
+                    OutPutMsgToConsle(Information_INFO,"圆弧_切割算法计算后，此次及之前坐标累加的容器大小: "+QString::number(allCoordinateVector.size()));
+                };
+            }else
             {
-                //每条指令计算轨迹之前，给当前线段赋起点，终点和圆心
-                algoDDA->setInitPoint(beginPoint,QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y),temCmdTotal.at(i)->code, QPoint(temCmdTotal.at(i)->point.i,temCmdTotal.at(i)->point.j));
-//                OutPutMsgToConsle(Critical_INFO,"测试圆弧算法: "+QString::number(beginPoint.rx())+","+QString::number(beginPoint.ry())+"|"+QString::number(temCmdTotal.at(i)->point.x)+","+QString::number(temCmdTotal.at(i)->point.y)+"|"+QString::number(temCmdTotal.at(i)->point.i)+","+QString::number(temCmdTotal.at(i)->point.j));
-                beginPoint=QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y);//把上一次的终点赋值给下一段的开始
-                base->algorithmFrame(algoDDA);//开始计算轨迹坐标，此处根据传入的算法对象不同，实现不同的算法，多态发生
-
-                allCoordinateVector<<(algoDDA->algorithmExport());//把当前线段的临时坐标添加到总的坐标容器里
-                OutPutMsgToConsle(Information_INFO,"圆弧_切割算法计算后，此次及之前坐标累加的容器大小: "+QString::number(allCoordinateVector.size()));
+                OutPutMsgToConsle(Running_INFO,"当前执行的指令(已被解析后): "+QString::number(i+1)+" ,此指令不需要移动，是功能性指令，具体功能还没有做...");
             };
-        }else
-        {
-            OutPutMsgToConsle(Running_INFO,"当前执行的指令(已被解析后): "+QString::number(i+1)+" ,此指令不需要移动，是功能性指令，具体功能还没有做...");
-        };
+        }
     }
-
+        break;
+    case DDA_Algo:
+    {
+        for (int i=0;i<temCmdTotal.size();i++)
+        {
+            //当前行的指令是否需要切割工作
+            if(temCmdTotal.at(i)->isMove)
+            {
+                OutPutMsgToConsle(Running_INFO,"当前需要切割的行号i: "+QString::number(i+1));
+                if(temCmdTotal.at(i)->line==STR_LINE)//指令是直线切割
+                {
+                    //每条指令计算轨迹之前，给当前线段赋起点和终点
+                    algoLineDDA->setInitPoint(beginPoint,QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y));
+                    beginPoint=QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y);//把上一次的终点赋值给下一段的开始
+                    base->algorithmFrame(algoLineDDA);//开始计算轨迹坐标，此处根据传入的算法对象不同，实现不同的算法，多态发生
+                    allCoordinateVector<<(algoLineDDA->algorithmExport());//把当前线段的临时坐标添加到总的坐标容器里
+                    OutPutMsgToConsle(Information_INFO,"直线_切割算法计算后，此次及之前坐标累加的容器大小: "+QString::number(allCoordinateVector.size()));
+                }
+                else if(temCmdTotal.at(i)->line==ARC_LINE)//指令是圆弧切割
+                {
+                    //每条指令计算轨迹之前，给当前线段赋起点，终点和圆心
+                    algoArcDDA->setInitPoint(beginPoint,QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y),temCmdTotal.at(i)->code, QPoint(temCmdTotal.at(i)->point.i,temCmdTotal.at(i)->point.j));
+                    beginPoint=QPoint(temCmdTotal.at(i)->point.x,temCmdTotal.at(i)->point.y);//把上一次的终点赋值给下一段的开始
+                    base->algorithmFrame(algoArcDDA);//开始计算轨迹坐标，此处根据传入的算法对象不同，实现不同的算法，多态发生
+                    allCoordinateVector<<(algoArcDDA->algorithmExport());//把当前线段的临时坐标添加到总的坐标容器里
+                    OutPutMsgToConsle(Information_INFO,"圆弧_切割算法计算后，此次及之前坐标累加的容器大小: "+QString::number(allCoordinateVector.size()));
+                };
+            }else
+            {
+                OutPutMsgToConsle(Running_INFO,"当前执行的指令(已被解析后): "+QString::number(i+1)+" ,此指令不需要移动，是功能性指令，具体功能还没有做...");
+            };
+        }
+    }
+        break;
+    default:OutPutMsgToConsle(Critical_INFO,"对机械后的指令，没有匹配到适合的算法进行计算.");
+        break;
+    }
 }
 
 

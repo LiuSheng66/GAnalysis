@@ -6,16 +6,17 @@ class CircularArcPTPCM : public Algorithm
 {   
 private:
 
-    int Ac_X = 0, Ac_Y = 0;//实时坐标
     int Line_Result = 0;//偏差判定值
     int Step;
     bool DirectionCircular;//true代表逆时针；false代表顺圆；当三点共线时，默认false顺圆
 
-    QPointF nowBias;//坐标平移后的移动值
 
     int BeginCoordinate_Value;//起点坐标象限值
     int EndCoordinate_Value;//终点坐标象限值
 
+    //因为算法都是按照原点来计算的，在输入其他起点时，都需要把起点平移到原点计算
+    QPoint shiftValue;//平移值，point.x先X轴移动距离；point.y先Y轴移动距离
+    QPoint Ac_XYPoint;//轨迹实时坐标
 
 public:
     QVector<QPoint> transitionCoordinate;//算法计算线段得到的每个坐标的集合
