@@ -21,6 +21,7 @@ private:
 public:
     QVector<QPoint> transitionCoordinate;//算法计算线段得到的每个坐标的集合
 
+
 public:
     CircularArcPTPCM();
     CircularArcPTPCM(QPoint begin, QPoint end, QPoint center);

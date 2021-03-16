@@ -41,6 +41,8 @@ public:
     QPoint centerPoint;//算法计算的圆心（注意：只有圆弧的算法会用到圆心，起点和终点直线和圆弧算法共用）
 public:
     QVector<QPoint> transitionCoordinate;//算法计算线段得到的每个坐标的集合
+
+    int cmdLine_number;//当前解析指令的行号
     //禁止圆心、起点、终点坐标三个点，两两相等，并判断是否符合圆弧，并返回半径的平方
     bool JudgeIsCircularArc(const int Begin_X,const int Begin_Y,const int End_X,const int End_Y,const int Center_X,const int Center_Y);
 

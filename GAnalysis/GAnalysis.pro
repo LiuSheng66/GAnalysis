@@ -26,7 +26,6 @@ SOURCES += \
     Command/mycommand.cpp \
     Command/mycommandrules.cpp \
     Drawing/mygraphicsview.cpp \
-    Drawing/paintarea.cpp \
     Global/global.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -48,7 +47,6 @@ HEADERS += \
     Command/mycommand.h \
     Command/mycommandrules.h \
     Drawing/mygraphicsview.h \
-    Drawing/paintarea.h \
     Global/global.h \
     mainwindow.h \
     GeometricFigure/geometricfigure.h \

@@ -55,15 +55,6 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
 }
 
-void MainWindow:: mouseMovePoint()
-{ //鼠标移动响应
-    QPointF pt=QPointF(area->x(),area->y());
-    xyLabel->setText(QString::asprintf("X=%.1f,Y=%.2f",pt.x(),pt.y())); //状态栏显示
-}
-
-
-
-
 
 void MainWindow::setLayout()
 {

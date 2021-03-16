@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include"Drawing/paintarea.h"
 #include"Command/gcommand.h"
 #include<QScrollArea>//提供画布的滚动条
 #include <QList>
@@ -26,7 +25,6 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    PaintArea *area;
     QScrollArea *scrollArea;
     QList<QDockWidget*> m_docks;
 
@@ -122,7 +120,7 @@ public:
 
 public slots:
     //槽函数
-    void mouseMovePoint();//自定义槽函数，根据画布空间的鼠标移动提供槽函数支持
+//    void mouseMovePoint();//自定义槽函数，根据画布空间的鼠标移动提供槽函数支持
 
 private:
     //事件

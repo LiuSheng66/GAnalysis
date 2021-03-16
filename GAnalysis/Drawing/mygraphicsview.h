@@ -3,6 +3,9 @@
 #include<QGraphicsScene>
 #include<QGraphicsView>
 #include<QGraphicsLineItem>
+#include<QWheelEvent>
+//#include<
+#include"Global/global.h"
 
 class MyGraphicsView : public QGraphicsView
 {
@@ -17,6 +20,21 @@ public:
     //线段颜色
     void drawCoordinate(QVector<QPoint> &allCoordinate);
     void clearDraw();
+    void wheelEvent(QWheelEvent *event);
+
+
+    qreal m_scalingOffset;
+    qreal zoom;
+    bool sign;
+    QPointF lastPos;
+    QPointF translateSpeed;
+    QCursor cursor1;
+    QPoint lastMousePos;
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void translate(QPointF delta);
+    void MyMove(QPointF delta);
 };
 
 #endif // MYGRAPHICSVIEW_H

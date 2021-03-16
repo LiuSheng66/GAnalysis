@@ -20,6 +20,7 @@ QVector<QPoint> Algorithm::algorithmExport()
 void Algorithm::algorithmFrame(Algorithm *begin)
 {
     begin->algorithmEntry();
+//    cmdLine_number=line_number;
 }
 
 void Algorithm::setInitPoint(QPoint begin, QPoint end,CodeType mycode, QPoint center)
